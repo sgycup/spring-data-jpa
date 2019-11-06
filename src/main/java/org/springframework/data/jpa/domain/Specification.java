@@ -62,7 +62,6 @@ public interface Specification<T> extends Serializable {
 	 * @return
 	 * @since 2.0
 	 */
-	@Nullable
 	static <T> Specification<T> where(@Nullable Specification<T> spec) {
 		return spec == null ? (root, query, builder) -> null : spec;
 	}
@@ -74,7 +73,7 @@ public interface Specification<T> extends Serializable {
 	 * @return The conjunction of the specifications
 	 * @since 2.0
 	 */
-	@Nullable
+
 	default Specification<T> and(@Nullable Specification<T> other) {
 		return composed(this, other, (builder, left, rhs) -> builder.and(left, rhs));
 	}
@@ -86,7 +85,6 @@ public interface Specification<T> extends Serializable {
 	 * @return The disjunction of the specifications
 	 * @since 2.0
 	 */
-	@Nullable
 	default Specification<T> or(@Nullable Specification<T> other) {
 		return composed(this, other, (builder, left, rhs) -> builder.or(left, rhs));
 	}
