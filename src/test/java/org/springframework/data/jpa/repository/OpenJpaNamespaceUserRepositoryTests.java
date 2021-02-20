@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -42,12 +42,12 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Jens Schauder
  */
 @ContextConfiguration("classpath:openjpa.xml")
-public class OpenJpaNamespaceUserRepositoryTests extends NamespaceUserRepositoryTests {
+class OpenJpaNamespaceUserRepositoryTests extends NamespaceUserRepositoryTests {
 
 	@PersistenceContext EntityManager em;
 
 	@Test
-	public void checkQueryValidationWithOpenJpa() {
+	void checkQueryValidationWithOpenJpa() {
 
 		assertThatThrownBy(() -> em.createQuery("something absurd"))
 		.isInstanceOf(RuntimeException.class);
@@ -62,8 +62,8 @@ public class OpenJpaNamespaceUserRepositoryTests extends NamespaceUserRepository
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	@Test
-	@Ignore
-	public void queryUsingIn() {
+	@Disabled
+	void queryUsingIn() {
 
 		flushTestUsers();
 
@@ -85,5 +85,5 @@ public class OpenJpaNamespaceUserRepositoryTests extends NamespaceUserRepository
 	 * Temporarily ignored until openjpa works with hsqldb 2.x.
 	 */
 	@Override
-	public void shouldFindUsersInNativeQueryWithPagination() {}
+	void shouldFindUsersInNativeQueryWithPagination() {}
 }

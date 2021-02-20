@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * Unit tests for {@link AbstractJpaEntityInformation}.
@@ -37,14 +39,15 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class JpaEntityInformationSupportUnitTests {
 
 	@Mock EntityManager em;
 	@Mock Metamodel metaModel;
 
 	@Test
-	public void usesSimpleClassNameIfNoEntityNameGiven() throws Exception {
+	void usesSimpleClassNameIfNoEntityNameGiven() throws Exception {
 
 		JpaEntityInformation<User, Integer> information = new DummyJpaEntityInformation<>(User.class);
 		assertThat(information.getEntityName()).isEqualTo("User");
@@ -53,11 +56,12 @@ public class JpaEntityInformationSupportUnitTests {
 		assertThat(second.getEntityName()).isEqualTo("AnotherNamedUser");
 	}
 
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-93
-	public void rejectsClassNotBeingFoundInMetamodel() {
+	@Test // DATAJPA-93
+	void rejectsClassNotBeingFoundInMetamodel() {
 
 		when(em.getMetamodel()).thenReturn(metaModel);
-		JpaEntityInformationSupport.getEntityInformation(User.class, em);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> JpaEntityInformationSupport.getEntityInformation(User.class, em));
 	}
 
 	static class User {
@@ -66,7 +70,7 @@ public class JpaEntityInformationSupportUnitTests {
 
 	static class DummyJpaEntityInformation<T, ID> extends JpaEntityInformationSupport<T, ID> {
 
-		public DummyJpaEntityInformation(Class<T> domainClass) {
+		DummyJpaEntityInformation(Class<T> domainClass) {
 			super(domainClass);
 		}
 

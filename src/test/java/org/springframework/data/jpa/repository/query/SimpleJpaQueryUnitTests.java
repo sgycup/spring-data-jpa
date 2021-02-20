@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 package org.springframework.data.jpa.repository.query;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
@@ -31,14 +29,15 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +51,7 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
@@ -61,15 +61,17 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
  * @author Thomas Darimont
  * @author Jens Schauder
  * @author Tom Hombergs
+ * @author Mark Paluch
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class SimpleJpaQueryUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SimpleJpaQueryUnitTests {
 
-	static final String USER_QUERY = "select u from User u";
-	static final SpelExpressionParser PARSER = new SpelExpressionParser();
+	private static final String USER_QUERY = "select u from User u";
+	private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 	private static final QueryMethodEvaluationContextProvider EVALUATION_CONTEXT_PROVIDER = QueryMethodEvaluationContextProvider.DEFAULT;
 
-	JpaQueryMethod method;
+	private JpaQueryMethod method;
 
 	@Mock EntityManager em;
 	@Mock EntityManagerFactory emf;
@@ -80,13 +82,11 @@ public class SimpleJpaQueryUnitTests {
 	@Mock ParameterBinder binder;
 	@Mock Metamodel metamodel;
 
-	ProjectionFactory factory = new SpelAwareProxyProjectionFactory();
+	private ProjectionFactory factory = new SpelAwareProxyProjectionFactory();
 
-	public @Rule ExpectedException exception = ExpectedException.none();
-
-	@Before
+	@BeforeEach
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setUp() throws SecurityException, NoSuchMethodException {
+	void setUp() throws SecurityException, NoSuchMethodException {
 
 		when(em.getMetamodel()).thenReturn(metamodel);
 		when(em.createQuery(anyString())).thenReturn(query);
@@ -96,15 +96,18 @@ public class SimpleJpaQueryUnitTests {
 		when(emf.createEntityManager()).thenReturn(em);
 		when(metadata.getDomainType()).thenReturn((Class) User.class);
 		when(metadata.getReturnedDomainClass(Mockito.any(Method.class))).thenReturn((Class) User.class);
+		when(metadata.getReturnType(Mockito.any(Method.class)))
+				.thenAnswer(invocation -> ClassTypeInformation.fromReturnTypeOf(invocation.getArgument(0)));
 
 		Method setUp = UserRepository.class.getMethod("findByLastname", String.class);
 		method = new JpaQueryMethod(setUp, metadata, factory, extractor);
 	}
 
 	@Test
-	public void prefersDeclaredCountQueryOverCreatingOne() throws Exception {
+	void prefersDeclaredCountQueryOverCreatingOne() throws Exception {
 
-		method = new JpaQueryMethod(SimpleJpaQueryUnitTests.class.getMethod("prefersDeclaredCountQueryOverCreatingOne"),
+		method = new JpaQueryMethod(
+				SimpleJpaQueryUnitTests.class.getDeclaredMethod("prefersDeclaredCountQueryOverCreatingOne"),
 				metadata, factory, extractor);
 		when(em.createQuery("foo", Long.class)).thenReturn(typedQuery);
 
@@ -116,7 +119,7 @@ public class SimpleJpaQueryUnitTests {
 	}
 
 	@Test // DATAJPA-77
-	public void doesNotApplyPaginationToCountQuery() throws Exception {
+	void doesNotApplyPaginationToCountQuery() throws Exception {
 
 		when(em.createQuery(Mockito.anyString())).thenReturn(query);
 
@@ -134,7 +137,7 @@ public class SimpleJpaQueryUnitTests {
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void discoversNativeQuery() throws Exception {
+	void discoversNativeQuery() throws Exception {
 
 		Method method = SampleRepository.class.getMethod("findNativeByLastname", String.class);
 		JpaQueryMethod queryMethod = new JpaQueryMethod(method, metadata, factory, extractor);
@@ -151,16 +154,16 @@ public class SimpleJpaQueryUnitTests {
 		verify(em).createNativeQuery("SELECT u FROM User u WHERE u.lastname = ?1", User.class);
 	}
 
-	@Test(expected = InvalidJpaQueryMethodException.class) // DATAJPA-554
-	public void rejectsNativeQueryWithDynamicSort() throws Exception {
+	@Test // DATAJPA-554
+	void rejectsNativeQueryWithDynamicSort() throws Exception {
 
 		Method method = SampleRepository.class.getMethod("findNativeByLastname", String.class, Sort.class);
-		createJpaQuery(method);
+		assertThatExceptionOfType(InvalidJpaQueryMethodException.class).isThrownBy(() -> createJpaQuery(method));
 	}
 
 	@Test // DATAJPA-352
 	@SuppressWarnings("unchecked")
-	public void doesNotValidateCountQueryIfNotPagingMethod() throws Exception {
+	void doesNotValidateCountQueryIfNotPagingMethod() throws Exception {
 
 		Method method = SampleRepository.class.getMethod("findByAnnotatedQuery");
 		when(em.createQuery(Mockito.contains("count"))).thenThrow(IllegalArgumentException.class);
@@ -170,34 +173,32 @@ public class SimpleJpaQueryUnitTests {
 
 	@Test // DATAJPA-352
 	@SuppressWarnings("unchecked")
-	public void validatesAndRejectsCountQueryIfPagingMethod() throws Exception {
+	void validatesAndRejectsCountQueryIfPagingMethod() throws Exception {
 
 		Method method = SampleRepository.class.getMethod("pageByAnnotatedQuery", Pageable.class);
 
 		when(em.createQuery(Mockito.contains("count"))).thenThrow(IllegalArgumentException.class);
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Count");
-		exception.expectMessage(method.getName());
 
-		createJpaQuery(method);
+		assertThatIllegalArgumentException().isThrownBy(() -> createJpaQuery(method)).withMessageContaining("Count")
+				.withMessageContaining(method.getName());
 	}
 
 	@Test
-	public void createsASimpleJpaQueryFromAnnotation() throws Exception {
+	void createsASimpleJpaQueryFromAnnotation() throws Exception {
 
 		RepositoryQuery query = createJpaQuery(SampleRepository.class.getMethod("findByAnnotatedQuery"));
 		assertThat(query instanceof SimpleJpaQuery).isTrue();
 	}
 
 	@Test
-	public void createsANativeJpaQueryFromAnnotation() throws Exception {
+	void createsANativeJpaQueryFromAnnotation() throws Exception {
 
 		RepositoryQuery query = createJpaQuery(SampleRepository.class.getMethod("findNativeByLastname", String.class));
 		assertThat(query instanceof NativeJpaQuery).isTrue();
 	}
 
 	@Test // DATAJPA-757
-	public void createsNativeCountQuery() throws Exception {
+	void createsNativeCountQuery() throws Exception {
 
 		when(em.createNativeQuery(anyString())).thenReturn(query);
 
@@ -211,7 +212,7 @@ public class SimpleJpaQueryUnitTests {
 	}
 
 	@Test // DATAJPA-885
-	public void projectsWithManuallyDeclaredQuery() throws Exception {
+	void projectsWithManuallyDeclaredQuery() throws Exception {
 
 		AbstractJpaQuery jpaQuery = createJpaQuery(SampleRepository.class.getMethod("projectWithExplicitQuery"));
 
@@ -224,7 +225,7 @@ public class SimpleJpaQueryUnitTests {
 	}
 
 	@Test // DATAJPA-1307
-	public void jdbcStyleParametersOnlyAllowedInNativeQueries() throws Exception {
+	void jdbcStyleParametersOnlyAllowedInNativeQueries() throws Exception {
 
 		// just verifying that it doesn't throw an exception
 		createJpaQuery(SampleRepository.class.getMethod("legalUseOfJdbcStyleParameters", String.class));
@@ -236,7 +237,7 @@ public class SimpleJpaQueryUnitTests {
 	}
 
 	@Test // DATAJPA-1163
-	public void resolvesExpressionInCountQuery() throws Exception {
+	void resolvesExpressionInCountQuery() throws Exception {
 
 		when(em.createQuery(Mockito.anyString())).thenReturn(query);
 

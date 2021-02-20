@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import javax.enterprise.inject.spi.Bean;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  * @author Mark Paluch
  * @author Jens Schauder
  */
-public class CdiExtensionIntegrationTests {
+class CdiExtensionIntegrationTests {
 
-	static SeContainer container;
+	private static SeContainer container;
 	private static Logger LOGGER = LoggerFactory.getLogger(CdiExtensionIntegrationTests.class);
 
-	@BeforeClass
-	public static void setUp() {
+	@BeforeAll
+	static void setUp() {
 
 		container = SeContainerInitializer.newInstance() //
 				.disableDiscovery() //
@@ -55,7 +55,7 @@ public class CdiExtensionIntegrationTests {
 
 	@Test // DATAJPA-319, DATAJPA-1180
 	@SuppressWarnings("rawtypes")
-	public void foo() {
+	void foo() {
 
 		Set<Bean<?>> beans = container.getBeanManager().getBeans(PersonRepository.class);
 
@@ -64,7 +64,7 @@ public class CdiExtensionIntegrationTests {
 	}
 
 	@Test // DATAJPA-136, DATAJPA-1180
-	public void saveAndFindAll() {
+	void saveAndFindAll() {
 
 		RepositoryConsumer repositoryConsumer = container.select(RepositoryConsumer.class).get();
 
@@ -74,21 +74,21 @@ public class CdiExtensionIntegrationTests {
 	}
 
 	@Test // DATAJPA-584, DATAJPA-1180
-	public void returnOneFromCustomImpl() {
+	void returnOneFromCustomImpl() {
 
 		RepositoryConsumer repositoryConsumer = container.select(RepositoryConsumer.class).get();
 		assertThat(repositoryConsumer.returnOne()).isEqualTo(1);
 	}
 
 	@Test // DATAJPA-584, DATAJPA-1180
-	public void useQualifiedCustomizedUserRepo() {
+	void useQualifiedCustomizedUserRepo() {
 
 		RepositoryConsumer repositoryConsumer = container.select(RepositoryConsumer.class).get();
 		repositoryConsumer.doSomethingOnUserDB();
 	}
 
 	@Test // DATAJPA-1287
-	public void useQualifiedFragmentUserRepo() {
+	void useQualifiedFragmentUserRepo() {
 
 		RepositoryConsumer repositoryConsumer = container.select(RepositoryConsumer.class).get();
 		assertThat(repositoryConsumer.returnOneUserDB()).isEqualTo(1);

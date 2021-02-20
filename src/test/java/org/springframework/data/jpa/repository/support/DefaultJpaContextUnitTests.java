@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.springframework.data.jpa.repository.support;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collections;
 
 import javax.persistence.EntityManager;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link DefaultJpaContext}.
@@ -28,15 +30,16 @@ import org.junit.Test;
  * @soundtrack Marcus Miller - B's River (Afrodeezia)
  * @since 1.9
  */
-public class DefaultJpaContextUnitTests {
+class DefaultJpaContextUnitTests {
 
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-669
-	public void rejectsNullEntityManagers() {
-		new DefaultJpaContext(null);
+	@Test // DATAJPA-669
+	void rejectsNullEntityManagers() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultJpaContext(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-669
-	public void rejectsEmptyEntityManagers() {
-		new DefaultJpaContext(Collections.<EntityManager> emptySet());
+	@Test // DATAJPA-669
+	void rejectsEmptyEntityManagers() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultJpaContext(Collections.<EntityManager> emptySet()));
 	}
 }

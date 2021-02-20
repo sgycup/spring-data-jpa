@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.Serializable;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -31,14 +31,14 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Jens Schauder
  */
 @ContextConfiguration("classpath:eclipselink.xml")
-public class EclipseLinkJpaMetamodelEntityInformationIntegrationTests
+class EclipseLinkJpaMetamodelEntityInformationIntegrationTests
 		extends JpaMetamodelEntityInformationIntegrationTests {
 
 	/**
 	 * Re-activate test. Change to check for {@link String} as OpenJpa defaults {@link Serializable}s to {@link String}.
 	 */
 	@Test
-	public void reactivatedDetectsIdTypeForMappedSuperclass() {
+	void reactivatedDetectsIdTypeForMappedSuperclass() {
 		JpaEntityInformation<?, ?> information = JpaEntityInformationSupport.getEntityInformation(AbstractPersistable.class,
 				em);
 		assertThat(information.getIdType()).isEqualTo(String.class);
@@ -48,26 +48,26 @@ public class EclipseLinkJpaMetamodelEntityInformationIntegrationTests
 	 * Ignored due to https://bugs.eclipse.org/bugs/show_bug.cgi?id=411231.
 	 */
 	@Override
-	@Ignore
-	public void findsIdClassOnMappedSuperclass() {}
+	@Disabled
+	void findsIdClassOnMappedSuperclass() {}
 
 	/**
 	 * Ignored due to https://bugs.eclipse.org/bugs/show_bug.cgi?id=415027
 	 */
 	@Override
-	@Ignore
-	public void detectsNewStateForEntityWithPrimitiveId() {}
+	@Disabled
+	void detectsNewStateForEntityWithPrimitiveId() {}
 
 	@Override
-	@Ignore
-	public void considersEntityWithUnsetCompundIdNew() {}
+	@Disabled
+	void considersEntityWithUnsetCompundIdNew() {}
 
 	/**
 	 * Re-activate test for DATAJPA-820.
 	 */
 	@Test
 	@Override
-	public void detectsVersionPropertyOnMappedSuperClass() {
+	void detectsVersionPropertyOnMappedSuperClass() {
 		super.detectsVersionPropertyOnMappedSuperClass();
 	}
 
@@ -75,10 +75,10 @@ public class EclipseLinkJpaMetamodelEntityInformationIntegrationTests
 	 * This test fails due to https://bugs.eclipse.org/bugs/show_bug.cgi?id=531528 IdentifiableType.hasSingleIdAttribute()
 	 * returns true when IdClass references an inner class. This bug is supposedly fixed, but the test still fails.
 	 */
-	@Ignore
+	@Disabled
 	@Test
 	@Override
-	public void correctlyDeterminesIdValueForNestedIdClassesWithNonPrimitiveNonManagedType() {
+	void correctlyDeterminesIdValueForNestedIdClassesWithNonPrimitiveNonManagedType() {
 		super.correctlyDeterminesIdValueForNestedIdClassesWithNonPrimitiveNonManagedType();
 	}
 
@@ -86,15 +86,15 @@ public class EclipseLinkJpaMetamodelEntityInformationIntegrationTests
 	 * This test fails due to https://bugs.eclipse.org/bugs/show_bug.cgi?id=531528 IdentifiableType.hasSingleIdAttribute()
 	 * returns true when IdClass references an inner class. This bug is supposedly fixed, but the test still fails.
 	 */
-	@Ignore
+	@Disabled
 	@Test
 	@Override
-	public void proxiedIdClassElement() {
+	void proxiedIdClassElement() {
 		super.proxiedIdClassElement();
 	}
 
 	@Override
-	protected String getMetadadataPersitenceUnitName() {
+	String getMetadadataPersitenceUnitName() {
 		return "metadata_el";
 	}
 }

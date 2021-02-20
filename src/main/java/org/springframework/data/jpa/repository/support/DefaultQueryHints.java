@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,8 @@
  */
 package org.springframework.data.jpa.repository.support;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import javax.persistence.EntityManager;
 
@@ -99,39 +95,23 @@ class DefaultQueryHints implements QueryHints {
 
 	/*
 	 * (non-Javadoc)
-	 * @see java.lang.Iterable#iterator()
+	 * @see org.springframework.data.jpa.repository.support.QueryHints#forEach(java.util.function.BiConsumer)
 	 */
 	@Override
-	public Iterator<Entry<String, Object>> iterator() {
-		return asMap().entrySet().iterator();
+	public void forEach(BiConsumer<String, Object> action) {
+		combineHints().forEach(action);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.jpa.repository.support.QueryHints#asMap()
-	 */
-	@Override
-	public Map<String, Object> asMap() {
-
-		Map<String, Object> hints = new HashMap<>();
-
-		if (forCounts) {
-			hints.putAll(metadata.getQueryHintsForCount());
-		} else {
-			hints.putAll(metadata.getQueryHints());
-		}
-
-		hints.putAll(getFetchGraphs());
-
-		return hints;
+	private QueryHints combineHints() {
+		return QueryHints.from(forCounts ? metadata.getQueryHintsForCount() : metadata.getQueryHints(), getFetchGraphs());
 	}
 
-	private Map<String, Object> getFetchGraphs() {
+	private QueryHints getFetchGraphs() {
 
 		return Optionals
 				.mapIfAllPresent(entityManager, metadata.getEntityGraph(),
-						(em, graph) -> Jpa21Utils.tryGetFetchGraphHints(em, getEntityGraph(graph), information.getJavaType()))
-				.orElse(Collections.emptyMap());
+						(em, graph) -> Jpa21Utils.getFetchGraphHint(em, getEntityGraph(graph), information.getJavaType()))
+				.orElse(new MutableQueryHints());
 	}
 
 	private JpaEntityGraph getEntityGraph(EntityGraph entityGraph) {

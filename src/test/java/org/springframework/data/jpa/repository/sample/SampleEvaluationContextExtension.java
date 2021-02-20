@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,11 +67,11 @@ public class SampleEvaluationContextExtension implements EvaluationContextExtens
 
 		private Object principal;
 
-		public SampleAuthentication(Object principal) {
+		SampleAuthentication(Object principal) {
 			this.principal = principal;
 		}
 
-		public Object getPrincipal() {
+		Object getPrincipal() {
 			return principal;
 		}
 
@@ -88,7 +88,7 @@ public class SampleEvaluationContextExtension implements EvaluationContextExtens
 		private Object id;
 		private String name;
 
-		public SampleUser(Object id, String name) {
+		SampleUser(Object id, String name) {
 			this.id = id;
 			this.name = name;
 		}

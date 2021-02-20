@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.sample.EmbeddedIdExampleDepartment;
@@ -40,7 +38,7 @@ import org.springframework.data.jpa.repository.sample.EmployeeRepositoryWithEmbe
 import org.springframework.data.jpa.repository.sample.EmployeeRepositoryWithIdClass;
 import org.springframework.data.jpa.repository.sample.SampleConfig;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -50,12 +48,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SampleConfig.class)
 @Transactional
 public class RepositoryWithCompositeKeyTests {
-
-	@Rule public ExpectedException expectedException = ExpectedException.none();
 
 	@Autowired EmployeeRepositoryWithIdClass employeeRepositoryWithIdClass;
 	@Autowired EmployeeRepositoryWithEmbeddedId employeeRepositoryWithEmbeddedId;
@@ -65,7 +61,7 @@ public class RepositoryWithCompositeKeyTests {
 	 *      Specification 2.4.1.3 Derived Identities Example 2</a>
 	 */
 	@Test // DATAJPA-269
-	public void shouldSupportSavingEntitiesWithCompositeKeyClassesWithIdClassAndDerivedIdentities() {
+	void shouldSupportSavingEntitiesWithCompositeKeyClassesWithIdClassAndDerivedIdentities() {
 
 		IdClassExampleDepartment dep = new IdClassExampleDepartment();
 		dep.setName("TestDepartment");
@@ -91,7 +87,7 @@ public class RepositoryWithCompositeKeyTests {
 	 *      Specification 2.4.1.3 Derived Identities Example 3</a>
 	 */
 	@Test // DATAJPA-269
-	public void shouldSupportSavingEntitiesWithCompositeKeyClassesWithEmbeddedIdsAndDerivedIdentities() {
+	void shouldSupportSavingEntitiesWithCompositeKeyClassesWithEmbeddedIdsAndDerivedIdentities() {
 
 		EmbeddedIdExampleDepartment dep = new EmbeddedIdExampleDepartment();
 		dep.setName("TestDepartment");
@@ -114,14 +110,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-472, DATAJPA-912
-	public void shouldSupportFindAllWithPageableAndEntityWithIdClass() throws Exception {
-
-		if (Package.getPackage("org.hibernate.cfg").getImplementationVersion().startsWith("4.1.")) {
-
-			// we expect this test to fail on 4.1.x - due to a bug in hibernate - remove as soon as 4.1.x fixes the issue.
-			expectedException.expect(InvalidDataAccessApiUsageException.class);
-			expectedException.expectMessage("No supertype found");
-		}
+	void shouldSupportFindAllWithPageableAndEntityWithIdClass() throws Exception {
 
 		IdClassExampleDepartment dep = new IdClassExampleDepartment();
 		dep.setName("TestDepartment");
@@ -138,7 +127,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-497
-	public void sortByEmbeddedPkFieldInCompositePkWithEmbeddedIdInQueryDsl() {
+	void sortByEmbeddedPkFieldInCompositePkWithEmbeddedIdInQueryDsl() {
 
 		EmbeddedIdExampleDepartment dep1 = new EmbeddedIdExampleDepartment();
 		dep1.setDepartmentId(1L);
@@ -174,7 +163,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-497
-	public void sortByEmbeddedPkFieldInCompositePkWithIdClassInQueryDsl() {
+	void sortByEmbeddedPkFieldInCompositePkWithIdClassInQueryDsl() {
 
 		IdClassExampleDepartment dep1 = new IdClassExampleDepartment();
 		dep1.setDepartmentId(1L);
@@ -210,7 +199,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-527, DATAJPA-1148
-	public void testExistsWithIdClass() {
+	void testExistsWithIdClass() {
 
 		IdClassExampleDepartment dep = new IdClassExampleDepartment();
 		dep.setName("TestDepartment");
@@ -230,7 +219,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-527
-	public void testExistsWithEmbeddedId() {
+	void testExistsWithEmbeddedId() {
 
 		EmbeddedIdExampleDepartment dep1 = new EmbeddedIdExampleDepartment();
 		dep1.setDepartmentId(1L);
@@ -253,7 +242,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-611
-	public void shouldAllowFindAllWithIdsForEntitiesWithCompoundIdClassKeys() {
+	void shouldAllowFindAllWithIdsForEntitiesWithCompoundIdClassKeys() {
 
 		IdClassExampleDepartment dep2 = new IdClassExampleDepartment();
 		dep2.setDepartmentId(2L);
@@ -287,7 +276,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-920
-	public void shouldExecuteExistsQueryForEntitiesWithEmbeddedId() {
+	void shouldExecuteExistsQueryForEntitiesWithEmbeddedId() {
 
 		EmbeddedIdExampleDepartment dep1 = new EmbeddedIdExampleDepartment();
 		dep1.setDepartmentId(1L);
@@ -308,7 +297,7 @@ public class RepositoryWithCompositeKeyTests {
 	}
 
 	@Test // DATAJPA-920
-	public void shouldExecuteExistsQueryForEntitiesWithCompoundIdClassKeys() {
+	void shouldExecuteExistsQueryForEntitiesWithCompoundIdClassKeys() {
 
 		IdClassExampleDepartment dep2 = new IdClassExampleDepartment();
 		dep2.setDepartmentId(2L);

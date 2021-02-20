@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,15 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
@@ -53,20 +56,21 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class JpaRepositoryFactoryBeanUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaRepositoryFactoryBeanUnitTests {
 
-	JpaRepositoryFactoryBean<SimpleSampleRepository, User, Integer> factoryBean;
+	private JpaRepositoryFactoryBean<SimpleSampleRepository, User, Integer> factoryBean;
 
 	@Mock EntityManager entityManager;
-	StubRepositoryFactorySupport factory;
+	private StubRepositoryFactorySupport factory;
 	@Mock ListableBeanFactory beanFactory;
 	@Mock PersistenceExceptionTranslator translator;
 	@Mock(extraInterfaces = SimpleSampleRepository.class) Repository<?, ?> repository;
 	@Mock Metamodel metamodel;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		Map<String, PersistenceExceptionTranslator> beans = new HashMap<>();
 		beans.put("foo", translator);
@@ -87,7 +91,7 @@ public class JpaRepositoryFactoryBeanUnitTests {
 	 * @throws Exception
 	 */
 	@Test
-	public void setsUpBasicInstanceCorrectly() throws Exception {
+	void setsUpBasicInstanceCorrectly() {
 
 		factoryBean.setBeanFactory(beanFactory);
 		factoryBean.afterPropertiesSet();
@@ -95,19 +99,20 @@ public class JpaRepositoryFactoryBeanUnitTests {
 		assertThat(factoryBean.getObject()).isNotNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void requiresListableBeanFactory() throws Exception {
+	@Test
+	void requiresListableBeanFactory() {
 
-		factoryBean.setBeanFactory(mock(BeanFactory.class));
+		assertThatIllegalArgumentException().isThrownBy(() -> factoryBean.setBeanFactory(mock(BeanFactory.class)));
 	}
 
 	/**
 	 * Assert that the factory rejects calls to {@code JpaRepositoryFactoryBean#setRepositoryInterface(Class)} with
 	 * {@literal null} or any other parameter instance not implementing {@code Repository}.
 	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void preventsNullRepositoryInterface() {
-		new JpaRepositoryFactoryBean<Repository<Object, Long>, Object, Long>(null);
+	@Test
+	void preventsNullRepositoryInterface() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JpaRepositoryFactoryBean<Repository<Object, Long>, Object, Long>(null));
 	}
 
 	public interface SimpleSampleRepository extends JpaRepository<User, Integer> {

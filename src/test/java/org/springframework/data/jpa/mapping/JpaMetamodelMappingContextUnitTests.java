@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.util.Collections;
 
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.annotation.Version;
 
 /**
@@ -29,10 +29,10 @@ import org.springframework.data.annotation.Version;
  *
  * @author Oliver Gierke
  */
-public class JpaMetamodelMappingContextUnitTests {
+class JpaMetamodelMappingContextUnitTests {
 
 	@Test // DATAJPA-775
-	public void jpaPersistentEntityRejectsSprignDataAtVersionAnnotation() {
+	void jpaPersistentEntityRejectsSprignDataAtVersionAnnotation() {
 
 		Metamodel metamodel = mock(Metamodel.class);
 
@@ -40,7 +40,7 @@ public class JpaMetamodelMappingContextUnitTests {
 		context.getPersistentEntity(Sample.class);
 	}
 
-	static class Sample {
+	private static class Sample {
 		@Version Long version;
 	}
 }

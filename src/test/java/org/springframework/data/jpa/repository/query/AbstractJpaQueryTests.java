@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,10 @@ import javax.persistence.QueryHint;
 import javax.persistence.TypedQuery;
 
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -43,7 +44,7 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -53,24 +54,24 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Thomas Darimont
  * @author Mark Paluch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:infrastructure.xml")
 public class AbstractJpaQueryTests {
 
 	@PersistenceContext EntityManager em;
 
-	Query query;
-	TypedQuery<Long> countQuery;
+	private Query query;
+	private TypedQuery<Long> countQuery;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
-	public void setUp() {
+	void setUp() {
 		query = mock(Query.class);
 		countQuery = mock(TypedQuery.class);
 	}
 
 	@Test // DATADOC-97
-	public void addsHintsToQueryObject() throws Exception {
+	void addsHintsToQueryObject() throws Exception {
 
 		JpaQueryMethod queryMethod = getMethod("findByLastname", String.class);
 
@@ -86,7 +87,7 @@ public class AbstractJpaQueryTests {
 	}
 
 	@Test // DATAJPA-54
-	public void skipsHintsForCountQueryIfConfigured() throws Exception {
+	void skipsHintsForCountQueryIfConfigured() throws Exception {
 
 		JpaQueryMethod queryMethod = getMethod("findByFirstname", String.class);
 		AbstractJpaQuery jpaQuery = new DummyJpaQuery(queryMethod, em);
@@ -101,7 +102,7 @@ public class AbstractJpaQueryTests {
 	}
 
 	@Test // DATAJPA-73
-	public void addsLockingModeToQueryObject() throws Exception {
+	void addsLockingModeToQueryObject() throws Exception {
 
 		when(query.setLockMode(any(LockModeType.class))).thenReturn(query);
 
@@ -115,7 +116,7 @@ public class AbstractJpaQueryTests {
 
 	@Test // DATAJPA-466
 	@Transactional
-	public void shouldAddEntityGraphHintForFetch() throws Exception {
+	void shouldAddEntityGraphHintForFetch() throws Exception {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -131,7 +132,7 @@ public class AbstractJpaQueryTests {
 
 	@Test // DATAJPA-466
 	@Transactional
-	public void shouldAddEntityGraphHintForLoad() throws Exception {
+	void shouldAddEntityGraphHintForLoad() throws Exception {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -178,7 +179,7 @@ public class AbstractJpaQueryTests {
 
 	class DummyJpaQuery extends AbstractJpaQuery {
 
-		public DummyJpaQuery(JpaQueryMethod method, EntityManager em) {
+		DummyJpaQuery(JpaQueryMethod method, EntityManager em) {
 			super(method, em);
 		}
 

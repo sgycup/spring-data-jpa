@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor;
@@ -38,7 +38,7 @@ public class NamespaceUserRepositoryTests extends UserRepositoryTests {
 	ListableBeanFactory beanFactory;
 
 	@Test
-	public void registersPostProcessors() {
+	void registersPostProcessors() {
 		hasAtLeastOneBeanOfType(PersistenceAnnotationBeanPostProcessor.class);
 	}
 

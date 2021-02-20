@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,25 +34,26 @@ import javax.persistence.metamodel.Bindable.BindableType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:infrastructure.xml" })
-public abstract class MetamodelIntegrationTests {
+abstract class MetamodelIntegrationTests {
 
 	@PersistenceContext EntityManager em;
 
 	@Test
-	public void considersOneToOneAttributeAnAssociation() {
+	void considersOneToOneAttributeAnAssociation() {
 
 		Metamodel metamodel = em.getMetamodel();
 		ManagedType<User> type = metamodel.managedType(User.class);
@@ -62,7 +63,7 @@ public abstract class MetamodelIntegrationTests {
 	}
 
 	@Test
-	public void pathToEntityIsOfBindableTypeEntityType() {
+	void pathToEntityIsOfBindableTypeEntityType() {
 
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -74,7 +75,7 @@ public abstract class MetamodelIntegrationTests {
 	}
 
 	@Test
-	public void canAccessParametersByIndexForNativeQueries() {
+	void canAccessParametersByIndexForNativeQueries() {
 
 		Query query = em.createNativeQuery("SELECT u from User u where u.lastname = ?1");
 
@@ -83,7 +84,7 @@ public abstract class MetamodelIntegrationTests {
 
 	@Test
 	@Transactional
-	public void doesNotExposeAliasForTupleIfNoneDefined() {
+	void doesNotExposeAliasForTupleIfNoneDefined() {
 
 		User user = new User();
 
@@ -103,7 +104,7 @@ public abstract class MetamodelIntegrationTests {
 
 	@Test
 	@Transactional
-	public void returnsAliasesInTuple() {
+	void returnsAliasesInTuple() {
 
 		User user = new User();
 		user.setFirstname("Dave");

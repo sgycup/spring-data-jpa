@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.springframework.data.jpa.repository.support;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -25,13 +25,13 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Oliver Gierke
  */
 @ContextConfiguration("classpath:openjpa.xml")
-public class OpenJpaMetamodelEntityInformationIntegrationTests extends JpaMetamodelEntityInformationIntegrationTests {
+class OpenJpaMetamodelEntityInformationIntegrationTests extends JpaMetamodelEntityInformationIntegrationTests {
 
 	/**
 	 * Re-activate test.
 	 */
 	@Test
-	public void reactivatedDetectsIdTypeForMappedSuperclass() {
+	void reactivatedDetectsIdTypeForMappedSuperclass() {
 		super.detectsIdTypeForMappedSuperclass();
 	}
 
@@ -39,20 +39,20 @@ public class OpenJpaMetamodelEntityInformationIntegrationTests extends JpaMetamo
 	 * Ignore as it fails with weird {@link NoClassDefFoundError}.
 	 */
 	@Override
-	@Ignore
-	public void findsIdClassOnMappedSuperclass() {}
+	@Disabled
+	void findsIdClassOnMappedSuperclass() {}
 
 	/**
 	 * Re-activate test for DATAJPA-820.
 	 */
 	@Test
 	@Override
-	public void detectsVersionPropertyOnMappedSuperClass() {
+	void detectsVersionPropertyOnMappedSuperClass() {
 		super.detectsVersionPropertyOnMappedSuperClass();
 	}
 
 	@Override
-	protected String getMetadadataPersitenceUnitName() {
+	String getMetadadataPersitenceUnitName() {
 		return "metadata_oj";
 	}
 }

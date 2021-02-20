@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import java.time.temporal.ChronoUnit;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.support.AbstractAttributeConverterIntegrationTests;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,7 +49,7 @@ public class Jsr310JpaConvertersIntegrationTests extends AbstractAttributeConver
 	@PersistenceContext EntityManager em;
 
 	@Test // DATAJPA-650, DATAJPA-1631
-	public void usesJsr310JpaConverters() {
+	void usesJsr310JpaConverters() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 

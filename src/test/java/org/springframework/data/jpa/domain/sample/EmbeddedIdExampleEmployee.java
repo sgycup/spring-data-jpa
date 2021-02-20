@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,13 @@ import javax.persistence.MapsId;
 @Entity
 public class EmbeddedIdExampleEmployee {
 
-	@EmbeddedId EmbeddedIdExampleEmployeePK employeePk;
+	@EmbeddedId private EmbeddedIdExampleEmployeePK employeePk;
 
 	@MapsId("departmentId")//
-	@ManyToOne(cascade = CascadeType.ALL)//
+	@ManyToOne(cascade = CascadeType.ALL) private//
 	EmbeddedIdExampleDepartment department;
 
-	String name;
+	private String name;
 
 	public EmbeddedIdExampleEmployeePK getEmployeePk() {
 		return employeePk;

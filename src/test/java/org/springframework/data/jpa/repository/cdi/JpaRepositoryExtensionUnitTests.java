@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.ProcessBean;
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -38,9 +38,10 @@ import org.springframework.test.util.ReflectionTestUtils;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class JpaRepositoryExtensionUnitTests {
+class JpaRepositoryExtensionUnitTests {
 
-	Bean<EntityManager> em, alternativeEm;
+	private Bean<EntityManager> em;
+	private Bean<EntityManager> alternativeEm;
 
 	@SuppressWarnings("unchecked")
 	private static void assertEntityManagerRegistered(JpaRepositoryExtension extension, Bean<EntityManager> em) {
@@ -60,9 +61,9 @@ public class JpaRepositoryExtensionUnitTests {
 		return mock;
 	}
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
-	public void setUp() {
+	void setUp() {
 
 		Set<Type> types = Collections.singleton((Type) EntityManager.class);
 
@@ -76,7 +77,7 @@ public class JpaRepositoryExtensionUnitTests {
 	}
 
 	@Test
-	public void registersEntityManager() {
+	void registersEntityManager() {
 
 		JpaRepositoryExtension extension = new JpaRepositoryExtension();
 		extension.processBean(createEntityManagerBeanMock(em));
@@ -85,7 +86,7 @@ public class JpaRepositoryExtensionUnitTests {
 	}
 
 	@Test // DATAJPA-388
-	public void alternativeEntityManagerOverridesDefault() {
+	void alternativeEntityManagerOverridesDefault() {
 
 		JpaRepositoryExtension extension = new JpaRepositoryExtension();
 		extension.processBean(createEntityManagerBeanMock(em));
@@ -95,7 +96,7 @@ public class JpaRepositoryExtensionUnitTests {
 	}
 
 	@Test // DATAJPA-388
-	public void alternativeEntityManagerDoesNotGetOverridden() {
+	void alternativeEntityManagerDoesNotGetOverridden() {
 
 		JpaRepositoryExtension extension = new JpaRepositoryExtension();
 		extension.processBean(createEntityManagerBeanMock(alternativeEm));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@ package org.springframework.data.jpa.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.sample.CustomAbstractPersistable;
 import org.springframework.data.jpa.repository.sample.CustomAbstractPersistableRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -32,14 +33,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jens Schauder
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "classpath:config/namespace-autoconfig-context.xml" })
 public class CustomAbstractPersistableIntegrationTests {
 
 	@Autowired CustomAbstractPersistableRepository repository;
 
 	@Test // DATAJPA-622
-	public void shouldBeAbleToSaveAndLoadCustomPersistableWithUuidId() {
+	void shouldBeAbleToSaveAndLoadCustomPersistableWithUuidId() {
 
 		CustomAbstractPersistable entity = new CustomAbstractPersistable();
 		CustomAbstractPersistable saved = repository.save(entity);

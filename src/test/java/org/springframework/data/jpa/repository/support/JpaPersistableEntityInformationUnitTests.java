@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,14 @@ import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.Type;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.repository.core.EntityInformation;
 
@@ -36,8 +39,9 @@ import org.springframework.data.repository.core.EntityInformation;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class JpaPersistableEntityInformationUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaPersistableEntityInformationUnitTests {
 
 	@Mock Metamodel metamodel;
 
@@ -45,9 +49,9 @@ public class JpaPersistableEntityInformationUnitTests {
 
 	@Mock @SuppressWarnings("rawtypes") Type idType;
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("unchecked")
-	public void setUp() {
+	void setUp() {
 
 		when(metamodel.managedType(Object.class)).thenThrow(IllegalArgumentException.class);
 		when(metamodel.managedType(Foo.class)).thenReturn(type);
@@ -55,7 +59,7 @@ public class JpaPersistableEntityInformationUnitTests {
 	}
 
 	@Test
-	public void usesPersistableMethodsForIsNewAndGetId() {
+	void usesPersistableMethodsForIsNewAndGetId() {
 
 		EntityInformation<Foo, Long> entityInformation = new JpaPersistableEntityInformation<Foo, Long>(Foo.class,
 				metamodel);

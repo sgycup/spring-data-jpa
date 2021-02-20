@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.data.jpa.domain.sample.QRole;
 import org.springframework.data.jpa.domain.sample.Role;
 import org.springframework.data.jpa.repository.sample.RoleRepository;
@@ -46,8 +49,9 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
  * @author Oliver Gierke
  * @author Thomas Darimont
  */
-@RunWith(MockitoJUnitRunner.class)
-public class CrudMethodMetadataUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class CrudMethodMetadataUnitTests {
 
 	@Mock EntityManager em;
 	@Mock EntityManagerFactory emf;
@@ -58,10 +62,10 @@ public class CrudMethodMetadataUnitTests {
 	@Mock javax.persistence.Query query;
 	@Mock Metamodel metamodel;
 
-	RoleRepository repository;
+	private RoleRepository repository;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		when(information.getJavaType()).thenReturn(Role.class);
 
@@ -82,7 +86,7 @@ public class CrudMethodMetadataUnitTests {
 	}
 
 	@Test // DATAJPA-73, DATAJPA-173
-	public void usesLockInformationAnnotatedAtRedeclaredMethod() {
+	void usesLockInformationAnnotatedAtRedeclaredMethod() {
 
 		when(em.getCriteriaBuilder()).thenReturn(builder);
 		when(builder.createQuery(Role.class)).thenReturn(criteriaQuery);
@@ -96,7 +100,7 @@ public class CrudMethodMetadataUnitTests {
 	}
 
 	@Test // DATAJPA-359, DATAJPA-173
-	public void usesMetadataAnnotatedAtRedeclaredFindOne() {
+	void usesMetadataAnnotatedAtRedeclaredFindOne() {
 
 		repository.findById(1);
 
@@ -107,7 +111,7 @@ public class CrudMethodMetadataUnitTests {
 	}
 
 	@Test // DATAJPA-574
-	public void appliesLockModeAndQueryHintsToQuerydslQuery() {
+	void appliesLockModeAndQueryHintsToQuerydslQuery() {
 
 		when(em.getDelegate()).thenReturn(mock(EntityManager.class));
 		when(em.createQuery(anyString())).thenReturn(query);

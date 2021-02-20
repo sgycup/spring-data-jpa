@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Tuple;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.Role;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.provider.PersistenceProvider;
@@ -36,7 +37,7 @@ import org.springframework.data.repository.core.support.DefaultRepositoryMetadat
 import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for {@link AbstractStringBasedJpaQuery}.
@@ -44,14 +45,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Oliver Gierke
  * @soundtrack Henrik Freischlader Trio - Nobody Else To Blame (Openness)
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:infrastructure.xml")
 public class AbstractStringBasedJpaQueryIntegrationTests {
 
 	@PersistenceContext EntityManager em;
 
 	@Test // DATAJPA-885
-	public void createsNormalQueryForJpaManagedReturnTypes() throws Exception {
+	void createsNormalQueryForJpaManagedReturnTypes() throws Exception {
 
 		EntityManager mock = mock(EntityManager.class);
 		when(mock.getDelegate()).thenReturn(mock);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.env.StandardEnvironment;
@@ -35,20 +35,20 @@ import org.springframework.data.jpa.repository.sample.UserRepository;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class JpaRepositoriesRegistrarUnitTests {
+class JpaRepositoriesRegistrarUnitTests {
 
-	BeanDefinitionRegistry registry;
-	AnnotationMetadata metadata;
+	private BeanDefinitionRegistry registry;
+	private AnnotationMetadata metadata;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		metadata = new StandardAnnotationMetadata(Config.class, true);
 		registry = new DefaultListableBeanFactory();
 	}
 
 	@Test
-	public void configuresRepositoriesCorrectly() {
+	void configuresRepositoriesCorrectly() {
 
 		JpaRepositoriesRegistrar registrar = new JpaRepositoriesRegistrar();
 		registrar.setResourceLoader(new DefaultResourceLoader());
@@ -60,6 +60,7 @@ public class JpaRepositoriesRegistrarUnitTests {
 	}
 
 	@EnableJpaRepositories(basePackageClasses = UserRepository.class)
+	private
 	class Config {
 
 	}

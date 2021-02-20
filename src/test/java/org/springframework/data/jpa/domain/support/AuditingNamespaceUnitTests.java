@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.jpa.domain.support;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 
@@ -27,19 +27,19 @@ import org.springframework.beans.factory.config.BeanDefinition;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class AuditingNamespaceUnitTests extends AuditingBeanFactoryPostProcessorUnitTests {
+class AuditingNamespaceUnitTests extends AuditingBeanFactoryPostProcessorUnitTests {
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.jpa.domain.support.AuditingBeanFactoryPostProcessorUnitTests#getConfigFile()
 	 */
 	@Override
-	protected String getConfigFile() {
+	String getConfigFile() {
 		return "auditing-namespace-context.xml";
 	}
 
 	@Test
-	public void registersBeanDefinitions() throws Exception {
+	void registersBeanDefinitions() throws Exception {
 
 		BeanDefinition definition = beanFactory.getBeanDefinition(AuditingEntityListener.class.getName());
 		PropertyValue propertyValue = definition.getPropertyValues().getPropertyValue("auditingHandler");

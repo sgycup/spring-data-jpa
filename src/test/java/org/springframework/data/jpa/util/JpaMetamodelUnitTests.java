@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,28 @@ import java.util.Collections;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * Unit tests for {@link JpaMetamodel}.
- * 
+ *
  * @author Oliver Gierke
  */
-@RunWith(MockitoJUnitRunner.class)
-public class JpaMetamodelUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaMetamodelUnitTests {
 
 	@Mock Metamodel metamodel;
 
 	@Mock EntityType<?> type;
 
 	@Test
-	public void skipsEntityTypesWithoutJavaTypeForIdentifierLookup() {
+	void skipsEntityTypesWithoutJavaTypeForIdentifierLookup() {
 
 		doReturn(Collections.singleton(type)).when(metamodel).getEntities();
 
@@ -49,7 +52,7 @@ public class JpaMetamodelUnitTests {
 	}
 
 	@Test // DATAJPA-1446
-	public void cacheIsEffectiveUnlessCleared() {
+	void cacheIsEffectiveUnlessCleared() {
 
 		JpaMetamodel model = JpaMetamodel.of(metamodel);
 		assertThat(model).isEqualTo(JpaMetamodel.of(metamodel));

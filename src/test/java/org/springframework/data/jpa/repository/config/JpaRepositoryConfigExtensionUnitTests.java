@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,13 @@ import java.util.Collections;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -49,14 +50,14 @@ import org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcesso
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.class)
-public class JpaRepositoryConfigExtensionUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaRepositoryConfigExtensionUnitTests {
 
-	public @Rule ExpectedException exception = ExpectedException.none();
 	@Mock RepositoryConfigurationSource configSource;
 
 	@Test
-	public void registersDefaultBeanPostProcessorsByDefault() {
+	void registersDefaultBeanPostProcessorsByDefault() {
 
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
@@ -69,7 +70,7 @@ public class JpaRepositoryConfigExtensionUnitTests {
 	}
 
 	@Test
-	public void doesNotRegisterProcessorIfAlreadyPresent() {
+	void doesNotRegisterProcessorIfAlreadyPresent() {
 
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		RootBeanDefinition pabppDefinition = new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
@@ -80,7 +81,7 @@ public class JpaRepositoryConfigExtensionUnitTests {
 	}
 
 	@Test
-	public void doesNotRegisterProcessorIfAutoRegistered() {
+	void doesNotRegisterProcessorIfAutoRegistered() {
 
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		RootBeanDefinition pabppDefinition = new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
@@ -91,7 +92,7 @@ public class JpaRepositoryConfigExtensionUnitTests {
 	}
 
 	@Test // DATAJPA-525
-	public void guardsAgainstNullJavaTypesReturnedFromJpaMetamodel() throws Exception {
+	void guardsAgainstNullJavaTypesReturnedFromJpaMetamodel() throws Exception {
 
 		ApplicationContext context = mock(ApplicationContext.class);
 		EntityManagerFactory emf = mock(EntityManagerFactory.class);
@@ -107,7 +108,7 @@ public class JpaRepositoryConfigExtensionUnitTests {
 	}
 
 	@Test // DATAJPA-1250
-	public void shouldUseInspectionClassLoader() {
+	void shouldUseInspectionClassLoader() {
 
 		JpaRepositoryConfigExtension extension = new JpaRepositoryConfigExtension();
 		ClassLoader classLoader = extension.getConfigurationInspectionClassLoader(new GenericApplicationContext());
@@ -116,7 +117,7 @@ public class JpaRepositoryConfigExtensionUnitTests {
 	}
 
 	@Test // DATAJPA-1250
-	public void shouldNotUseInspectionClassLoaderWithoutEclipseLink() {
+	void shouldNotUseInspectionClassLoaderWithoutEclipseLink() {
 
 		ShadowingClassLoader shadowingClassLoader = new ShadowingClassLoader(getClass().getClassLoader(), false) {
 
@@ -147,7 +148,8 @@ public class JpaRepositoryConfigExtensionUnitTests {
 		extension.registerBeansForRoot(factory, configSource);
 
 		assertThat(factory.getBean(expectedBeanName)).isNotNull();
-		exception.expect(NoSuchBeanDefinitionException.class);
-		factory.getBeanDefinition("org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor#1");
+
+		assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> factory
+				.getBeanDefinition("org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor#1"));
 	}
 }

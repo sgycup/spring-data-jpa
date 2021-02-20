@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.springframework.data.jpa.repository.support;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.LockModeType;
@@ -45,22 +44,20 @@ public interface CrudMethodMetadata {
 	LockModeType getLockModeType();
 
 	/**
-	 * Returns all query hints to be applied to queries executed for the CRUD method.
+	 * Returns all query hints in a list to be applied to queries executed for the CRUD method.
 	 *
 	 * @return
+	 * @since 2.4
 	 */
-	Map<String, Object> getQueryHints();
+	QueryHints getQueryHints();
 
 	/**
-	 * Returns all query hints to be applied to count queries executed for the CRUD method. The default implementation
-	 * just delegates to {@link #getQueryHints()}.
+	 * Returns all query hints in a list to be applied to queries executed for the CRUD method.
 	 *
 	 * @return
-	 * @since 2.2
+	 * @since 2.4
 	 */
-	default Map<String, Object> getQueryHintsForCount() {
-		return getQueryHints();
-	}
+	QueryHints getQueryHintsForCount();
 
 	/**
 	 * Returns the {@link EntityGraph} to be used.

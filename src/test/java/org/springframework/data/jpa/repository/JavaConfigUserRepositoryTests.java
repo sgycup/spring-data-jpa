@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import java.util.Collections;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -54,7 +55,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
  * @author Thomas Darimont
  */
 @ContextConfiguration(inheritLocations = false, loader = AnnotationConfigContextLoader.class)
-public class JavaConfigUserRepositoryTests extends UserRepositoryTests {
+class JavaConfigUserRepositoryTests extends UserRepositoryTests {
 
 	@Configuration
 	@ImportResource("classpath:infrastructure.xml")
@@ -97,12 +98,14 @@ public class JavaConfigUserRepositoryTests extends UserRepositoryTests {
 		}
 	}
 
-	@Test(expected = NoSuchBeanDefinitionException.class) // DATAJPA-317
-	public void doesNotPickUpJpaRepository() {
+	@Test // DATAJPA-317
+	void doesNotPickUpJpaRepository() {
 
-		ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(JpaRepositoryConfig.class);
-		context.getBean("jpaRepository");
-		context.close();
+		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(JpaRepositoryConfig.class)) {
+			Assertions.assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+					.isThrownBy(() -> context.getBean("jpaRepository"));
+			context.close();
+		}
 	}
 
 	@Configuration

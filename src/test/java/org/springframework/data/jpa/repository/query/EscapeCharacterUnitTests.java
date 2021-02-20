@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,27 @@ package org.springframework.data.jpa.repository.query;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link EscapeCharacter}.
  *
  * @author Jens Schauder
  */
-public class EscapeCharacterUnitTests {
+class EscapeCharacterUnitTests {
 
 	@Test // DATAJPA-1522
-	public void nothingToEscape() {
+	void nothingToEscape() {
 		assertThat(EscapeCharacter.of('x').escape("alpha")).isEqualTo("alpha");
 	}
 
 	@Test // DATAJPA-1522
-	public void wildcardGetsEscaped() {
+	void wildcardGetsEscaped() {
 		assertThat(EscapeCharacter.of('x').escape("alp_ha")).isEqualTo("alpx_ha");
 	}
 
 	@Test // DATAJPA-1522
-	public void escapeCharacterGetsEscaped() {
+	void escapeCharacterGetsEscaped() {
 		assertThat(EscapeCharacter.of('x').escape("axlpx_ha")).isEqualTo("axxlpxxx_ha");
 	}
 }

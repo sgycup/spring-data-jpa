@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.PersistableWithIdClass;
 import org.springframework.data.jpa.domain.sample.PersistableWithIdClassPK;
 import org.springframework.data.jpa.domain.sample.SampleEntity;
@@ -33,7 +34,7 @@ import org.springframework.data.jpa.domain.sample.SampleEntityPK;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -43,25 +44,25 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Thomas Darimont
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:infrastructure.xml" })
 @Transactional
-public class JpaRepositoryTests {
+class JpaRepositoryTests {
 
 	@PersistenceContext EntityManager em;
 
-	JpaRepository<SampleEntity, SampleEntityPK> repository;
-	CrudRepository<PersistableWithIdClass, PersistableWithIdClassPK> idClassRepository;
+	private JpaRepository<SampleEntity, SampleEntityPK> repository;
+	private CrudRepository<PersistableWithIdClass, PersistableWithIdClassPK> idClassRepository;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		repository = new JpaRepositoryFactory(em).getRepository(SampleEntityRepository.class);
 		idClassRepository = new JpaRepositoryFactory(em).getRepository(SampleWithIdClassRepository.class);
 	}
 
 	@Test
-	public void testCrudOperationsForCompoundKeyEntity() throws Exception {
+	void testCrudOperationsForCompoundKeyEntity() throws Exception {
 
 		SampleEntity entity = new SampleEntity("foo", "bar");
 		repository.saveAndFlush(entity);
@@ -75,7 +76,7 @@ public class JpaRepositoryTests {
 	}
 
 	@Test // DATAJPA-50
-	public void executesCrudOperationsForEntityWithIdClass() {
+	void executesCrudOperationsForEntityWithIdClass() {
 
 		PersistableWithIdClass entity = new PersistableWithIdClass(1L, 1L);
 		idClassRepository.save(entity);
@@ -89,7 +90,7 @@ public class JpaRepositoryTests {
 	}
 
 	@Test // DATAJPA-266
-	public void testExistsForDomainObjectsWithCompositeKeys() throws Exception {
+	void testExistsForDomainObjectsWithCompositeKeys() throws Exception {
 
 		PersistableWithIdClass s1 = idClassRepository.save(new PersistableWithIdClass(1L, 1L));
 		PersistableWithIdClass s2 = idClassRepository.save(new PersistableWithIdClass(2L, 2L));
@@ -100,7 +101,7 @@ public class JpaRepositoryTests {
 	}
 
 	@Test // DATAJPA-527
-	public void executesExistsForEntityWithIdClass() {
+	void executesExistsForEntityWithIdClass() {
 
 		PersistableWithIdClass entity = new PersistableWithIdClass(1L, 1L);
 		idClassRepository.save(entity);
@@ -113,11 +114,24 @@ public class JpaRepositoryTests {
 		assertThat(idClassRepository.existsById(id)).isTrue();
 	}
 
-	private static interface SampleEntityRepository extends JpaRepository<SampleEntity, SampleEntityPK> {
+	@Test // DATAJPA-1818
+	void deleteAllByIdInBatch() {
+
+		SampleEntity one = new SampleEntity("one", "eins");
+		SampleEntity two = new SampleEntity("two", "zwei");
+		SampleEntity three = new SampleEntity("three", "drei");
+		repository.saveAll(Arrays.asList(one, two, three));
+		repository.flush();
+
+		repository.deleteAllByIdInBatch(Arrays.asList(new SampleEntityPK("one", "eins"),new SampleEntityPK("three", "drei")));
+		assertThat(repository.findAll()).containsExactly(two);
+	}
+
+	private interface SampleEntityRepository extends JpaRepository<SampleEntity, SampleEntityPK> {
 
 	}
 
-	private static interface SampleWithIdClassRepository
+	private interface SampleWithIdClassRepository
 			extends CrudRepository<PersistableWithIdClass, PersistableWithIdClassPK> {
 
 	}

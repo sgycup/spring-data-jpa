@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@ package org.springframework.data.jpa.repository.support;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.sample.AuditableUser;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.sample.AuditableUserRepository;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Oliver Gierke
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:multiple-entity-manager-integration-context.xml")
 public class EntityManagerFactoryRefTests {
 
@@ -42,13 +43,13 @@ public class EntityManagerFactoryRefTests {
 
 	@Test
 	@Transactional
-	public void useUserRepository() throws Exception {
+	void useUserRepository() throws Exception {
 		userRepository.saveAndFlush(new User("firstname", "lastname", "foo@bar.de"));
 	}
 
 	@Test
 	@Transactional("transactionManager-2")
-	public void useAuditableUserRepository() throws Exception {
+	void useAuditableUserRepository() throws Exception {
 		auditableUserRepository.saveAndFlush(new AuditableUser());
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,26 +29,27 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Reda.Housni-Alaoui
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ProjectionsIntegrationTests.Config.class)
 public class ProjectionJoinIntegrationTests {
 
 	@Autowired private UserRepository userRepository;
 
 	@Test // DATAJPA-1418
-	public void findByIdPerformsAnOuterJoin() {
+	void findByIdPerformsAnOuterJoin() {
 		User user = userRepository.save(new User());
 
 		UserProjection projection = userRepository.findById(user.getId(), UserProjection.class);
@@ -59,7 +60,7 @@ public class ProjectionJoinIntegrationTests {
 	}
 
 	@Data
-	private static class UserProjection {
+	public static class UserProjection {
 
 		private final int id;
 		private final Address address;

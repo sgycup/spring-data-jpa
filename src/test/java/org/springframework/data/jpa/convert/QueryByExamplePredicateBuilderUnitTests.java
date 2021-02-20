@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.springframework.data.jpa.convert;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.data.domain.Example.*;
@@ -37,14 +37,15 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
@@ -59,9 +60,10 @@ import org.springframework.util.ObjectUtils;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class QueryByExamplePredicateBuilderUnitTests {
+class QueryByExamplePredicateBuilderUnitTests {
 
 	@Mock CriteriaBuilder cb;
 	@Mock Root root;
@@ -72,22 +74,20 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	@Mock Path dummyPath;
 	@Mock Join from;
 
-	Set<SingularAttribute<? super Person, ?>> personEntityAttribtues;
-	Set<SingularAttribute<? super Skill, ?>> skillEntityAttribtues;
+	private Set<SingularAttribute<? super Person, ?>> personEntityAttribtues;
+	private Set<SingularAttribute<? super Skill, ?>> skillEntityAttribtues;
 
-	SingularAttribute<? super Person, Long> personIdAttribute;
-	SingularAttribute<? super Person, String> personFirstnameAttribute;
-	SingularAttribute<? super Person, Long> personAgeAttribute;
-	SingularAttribute<? super Person, Person> personFatherAttribute;
-	SingularAttribute<? super Person, Skill> personSkillAttribute;
-	SingularAttribute<? super Person, Address> personAddressAttribute;
-	SingularAttribute<? super Skill, String> skillNameAttribute;
-	SingularAttribute<? super Skill, Skill> skillNestedAttribute;
+	private SingularAttribute<? super Person, Long> personIdAttribute;
+	private SingularAttribute<? super Person, String> personFirstnameAttribute;
+	private SingularAttribute<? super Person, Long> personAgeAttribute;
+	private SingularAttribute<? super Person, Person> personFatherAttribute;
+	private SingularAttribute<? super Person, Skill> personSkillAttribute;
+	private SingularAttribute<? super Person, Address> personAddressAttribute;
+	private SingularAttribute<? super Skill, String> skillNameAttribute;
+	private SingularAttribute<? super Skill, Skill> skillNestedAttribute;
 
-	public @Rule ExpectedException exception = ExpectedException.none();
-
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		personIdAttribute = new SingularAttributeStub<>("id", PersistentAttributeType.BASIC, Long.class);
 		personFirstnameAttribute = new SingularAttributeStub<>("firstname", PersistentAttributeType.BASIC,
@@ -134,29 +134,32 @@ public class QueryByExamplePredicateBuilderUnitTests {
 		doReturn(orPredicate).when(cb).or(ArgumentMatchers.any());
 	}
 
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-218
-	public void getPredicateShouldThrowExceptionOnNullRoot() {
-		QueryByExamplePredicateBuilder.getPredicate(null, cb, of(new Person()), EscapeCharacter.DEFAULT);
-	}
-
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-218
-	public void getPredicateShouldThrowExceptionOnNullCriteriaBuilder() {
-		QueryByExamplePredicateBuilder.getPredicate(root, null, of(new Person()), EscapeCharacter.DEFAULT);
-	}
-
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-218
-	public void getPredicateShouldThrowExceptionOnNullExample() {
-		QueryByExamplePredicateBuilder.getPredicate(root, null, null, EscapeCharacter.DEFAULT);
+	@Test // DATAJPA-218
+	void getPredicateShouldThrowExceptionOnNullRoot() {
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> QueryByExamplePredicateBuilder.getPredicate(null, cb, of(new Person()), EscapeCharacter.DEFAULT));
 	}
 
 	@Test // DATAJPA-218
-	public void emptyCriteriaListShouldResultTruePredicate() {
+	void getPredicateShouldThrowExceptionOnNullCriteriaBuilder() {
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> QueryByExamplePredicateBuilder.getPredicate(root, null, of(new Person()), EscapeCharacter.DEFAULT));
+	}
+
+	@Test // DATAJPA-218
+	void getPredicateShouldThrowExceptionOnNullExample() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> QueryByExamplePredicateBuilder.getPredicate(root, null, null, EscapeCharacter.DEFAULT));
+	}
+
+	@Test // DATAJPA-218
+	void emptyCriteriaListShouldResultTruePredicate() {
 		assertThat(QueryByExamplePredicateBuilder.getPredicate(root, cb, of(new Person()), EscapeCharacter.DEFAULT))
 				.isEqualTo(truePredicate);
 	}
 
 	@Test // DATAJPA-218
-	public void singleElementCriteriaShouldJustReturnIt() {
+	void singleElementCriteriaShouldJustReturnIt() {
 
 		Person p = new Person();
 		p.firstname = "foo";
@@ -167,7 +170,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-218
-	public void multiPredicateCriteriaShouldReturnCombinedOnes() {
+	void multiPredicateCriteriaShouldReturnCombinedOnes() {
 
 		Person p = new Person();
 		p.firstname = "foo";
@@ -181,7 +184,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-879
-	public void orConcatenatesPredicatesIfMatcherSpecifies() {
+	void orConcatenatesPredicatesIfMatcherSpecifies() {
 
 		Person person = new Person();
 		person.firstname = "foo";
@@ -196,7 +199,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-1372
-	public void considersSingularJoinedAttributes() {
+	void considersSingularJoinedAttributes() {
 
 		doReturn(from).when(root).join(anyString());
 		doReturn(dummyPath).when(dummyPath).get(any(SingularAttribute.class));
@@ -216,7 +219,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-1534
-	public void likePatternsGetEscapedContaining() {
+	void likePatternsGetEscapedContaining() {
 
 		Person person = new Person();
 		person.firstname = "f\\o_o";
@@ -234,8 +237,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-1534
-
-	public void likePatternsGetEscapedStarting() {
+	void likePatternsGetEscapedStarting() {
 
 		Person person = new Person();
 		person.firstname = "f\\o_o";
@@ -253,7 +255,7 @@ public class QueryByExamplePredicateBuilderUnitTests {
 	}
 
 	@Test // DATAJPA-1534
-	public void likePatternsGetEscapedEnding() {
+	void likePatternsGetEscapedEnding() {
 
 		Person person = new Person();
 		person.firstname = "f\\o_o";
@@ -304,12 +306,12 @@ public class QueryByExamplePredicateBuilderUnitTests {
 		private Class<T> javaType;
 		private Type<T> type;
 
-		public SingularAttributeStub(String name,
+		SingularAttributeStub(String name,
 				javax.persistence.metamodel.Attribute.PersistentAttributeType attributeType, Class<T> javaType) {
 			this(name, attributeType, javaType, null);
 		}
 
-		public SingularAttributeStub(String name,
+		SingularAttributeStub(String name,
 				javax.persistence.metamodel.Attribute.PersistentAttributeType attributeType, Class<T> javaType, Type<T> type) {
 			this.name = name;
 			this.attributeType = attributeType;

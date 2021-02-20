@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -37,7 +36,7 @@ import org.springframework.data.jpa.repository.sample.ItemSiteRepository;
 import org.springframework.data.jpa.repository.sample.SampleConfig;
 import org.springframework.data.jpa.repository.sample.SiteRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -46,12 +45,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = RepositoryWithIdClassKeyTests.TestConfig.class)
 @Transactional
 public class RepositoryWithIdClassKeyTests {
-
-	@Rule public ExpectedException expectedException = ExpectedException.none();
 
 	@Autowired private SiteRepository siteRepository;
 
@@ -64,7 +61,7 @@ public class RepositoryWithIdClassKeyTests {
 	 *      Specification 2.4.1.3 Derived Identities Example 2</a>
 	 */
 	@Test // DATAJPA-413
-	public void shouldSaveAndLoadEntitiesWithDerivedIdentities() throws Exception {
+	void shouldSaveAndLoadEntitiesWithDerivedIdentities() throws Exception {
 
 		Site site = siteRepository.save(new Site());
 		Item item = itemRepository.save(new Item(123, 456));

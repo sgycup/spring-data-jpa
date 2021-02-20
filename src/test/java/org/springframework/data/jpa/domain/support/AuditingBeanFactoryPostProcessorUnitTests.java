@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -33,23 +33,23 @@ import org.springframework.core.io.ClassPathResource;
  * @author Thomas Darimont
  * @author Jens Schauder
  */
-public class AuditingBeanFactoryPostProcessorUnitTests {
+class AuditingBeanFactoryPostProcessorUnitTests {
 
 	DefaultListableBeanFactory beanFactory;
-	AuditingBeanFactoryPostProcessor processor;
+	private AuditingBeanFactoryPostProcessor processor;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		this.beanFactory = getBeanFactory();
 		this.processor = new AuditingBeanFactoryPostProcessor();
 	}
 
-	protected String getConfigFile() {
+	String getConfigFile() {
 		return "auditing-bfpp-context.xml";
 	}
 
-	protected DefaultListableBeanFactory getBeanFactory() {
+	DefaultListableBeanFactory getBeanFactory() {
 
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
@@ -59,20 +59,21 @@ public class AuditingBeanFactoryPostProcessorUnitTests {
 	}
 
 	@Test
-	public void beanConfigurerAspectShouldBeConfiguredAfterPostProcessing() throws Exception {
+	void beanConfigurerAspectShouldBeConfiguredAfterPostProcessing() throws Exception {
 
 		processor.postProcessBeanFactory(beanFactory);
 
 		assertThat(beanFactory.isBeanNameInUse(AuditingBeanFactoryPostProcessor.BEAN_CONFIGURER_ASPECT_BEAN_NAME)).isTrue();
 	}
 
-	@Test(expected = IllegalStateException.class) // DATAJPA-265
-	public void rejectsConfigurationWithoutSpringConfigured() {
-		processor.postProcessBeanFactory(new DefaultListableBeanFactory());
+	@Test // DATAJPA-265
+	void rejectsConfigurationWithoutSpringConfigured() {
+		assertThatIllegalStateException()
+				.isThrownBy(() -> processor.postProcessBeanFactory(new DefaultListableBeanFactory()));
 	}
 
 	@Test // DATAJPA-265
-	public void setsDependsOnOnEntityManagerFactory() {
+	void setsDependsOnOnEntityManagerFactory() {
 
 		processor.postProcessBeanFactory(beanFactory);
 
@@ -87,7 +88,7 @@ public class AuditingBeanFactoryPostProcessorUnitTests {
 	}
 
 	@Test // DATAJPA-453
-	public void findsEntityManagerFactoryInParentBeanFactory() {
+	void findsEntityManagerFactoryInParentBeanFactory() {
 
 		DefaultListableBeanFactory childFactory = new DefaultListableBeanFactory(getBeanFactory());
 		processor.postProcessBeanFactory(childFactory);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
 package org.springframework.data.jpa.repository.support;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +28,6 @@ import javax.persistence.QueryHint;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -194,8 +190,8 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 	private static class DefaultCrudMethodMetadata implements CrudMethodMetadata {
 
 		private final @Nullable LockModeType lockModeType;
-		private final Map<String, Object> queryHints;
-		private final Map<String, Object> getQueryHintsForCount;
+		private final org.springframework.data.jpa.repository.support.QueryHints queryHints;
+		private final org.springframework.data.jpa.repository.support.QueryHints queryHintsForCount;
 		private final Optional<EntityGraph> entityGraph;
 		private final Method method;
 
@@ -210,7 +206,7 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 
 			this.lockModeType = findLockModeType(method);
 			this.queryHints = findQueryHints(method, it -> true);
-			this.getQueryHintsForCount = findQueryHints(method, QueryHints::forCounting);
+			this.queryHintsForCount = findQueryHints(method, QueryHints::forCounting);
 			this.entityGraph = findEntityGraph(method);
 			this.method = method;
 		}
@@ -226,25 +222,27 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 			return annotation == null ? null : (LockModeType) AnnotationUtils.getValue(annotation);
 		}
 
-		private static Map<String, Object> findQueryHints(Method method, Predicate<QueryHints> annotationFilter) {
+		private static org.springframework.data.jpa.repository.support.QueryHints findQueryHints(Method method,
+				Predicate<QueryHints> annotationFilter) {
 
-			Map<String, Object> queryHints = new HashMap<>();
+			MutableQueryHints queryHints = new MutableQueryHints();
+
 			QueryHints queryHintsAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, QueryHints.class);
 
 			if (queryHintsAnnotation != null && annotationFilter.test(queryHintsAnnotation)) {
 
 				for (QueryHint hint : queryHintsAnnotation.value()) {
-					queryHints.put(hint.name(), hint.value());
+					queryHints.add(hint.name(), hint.value());
 				}
 			}
 
 			QueryHint queryHintAnnotation = AnnotationUtils.findAnnotation(method, QueryHint.class);
 
 			if (queryHintAnnotation != null) {
-				queryHints.put(queryHintAnnotation.name(), queryHintAnnotation.value());
+				queryHints.add(queryHintAnnotation.name(), queryHintAnnotation.value());
 			}
 
-			return Collections.unmodifiableMap(queryHints);
+			return queryHints;
 		}
 
 		/*
@@ -262,7 +260,7 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 		 * @see org.springframework.data.jpa.repository.support.CrudMethodMetadata#getQueryHints()
 		 */
 		@Override
-		public Map<String, Object> getQueryHints() {
+		public org.springframework.data.jpa.repository.support.QueryHints getQueryHints() {
 			return queryHints;
 		}
 
@@ -271,8 +269,8 @@ class CrudMethodMetadataPostProcessor implements RepositoryProxyPostProcessor, B
 		 * @see org.springframework.data.jpa.repository.support.CrudMethodMetadata#getQueryHintsForCount()
 		 */
 		@Override
-		public Map<String, Object> getQueryHintsForCount() {
-			return getQueryHintsForCount;
+		public org.springframework.data.jpa.repository.support.QueryHints getQueryHintsForCount() {
+			return queryHintsForCount;
 		}
 
 		/*

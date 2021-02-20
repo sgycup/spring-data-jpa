@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,4 +24,4 @@ import org.springframework.test.context.ContextConfiguration;
  * @soundtrack Elephants Crossing - We are (Irrelephant)
  */
 @ContextConfiguration("classpath:eclipselink.xml")
-public class EclipseLinkParameterMetadataProviderIntegrationTests extends ParameterMetadataProviderIntegrationTests {}
+class EclipseLinkParameterMetadataProviderIntegrationTests extends ParameterMetadataProviderIntegrationTests {}

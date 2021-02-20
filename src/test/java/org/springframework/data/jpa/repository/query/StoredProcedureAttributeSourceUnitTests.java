@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,28 @@
  */
 package org.springframework.data.jpa.repository.query;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.annotation.AliasFor;
-import org.springframework.data.jpa.domain.sample.User;
-import org.springframework.data.repository.query.Param;
-import org.springframework.util.ReflectionUtils;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import javax.persistence.EntityManager;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.data.jpa.domain.sample.User;
+import org.springframework.data.repository.query.Param;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Unit tests for {@link StoredProcedureAttributeSource}.
@@ -45,15 +49,16 @@ import static org.mockito.Mockito.*;
  * @author Jens Schauder
  * @since 1.6
  */
-@RunWith(MockitoJUnitRunner.class)
-public class StoredProcedureAttributeSourceUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class StoredProcedureAttributeSourceUnitTests {
 
-	StoredProcedureAttributeSource creator;
+	private StoredProcedureAttributeSource creator;
 	@Mock
 	JpaEntityMetadata<User> entityMetadata;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		creator = StoredProcedureAttributeSource.INSTANCE;
 
@@ -62,7 +67,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodWithImplicitProcedureName() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodWithImplicitProcedureName() {
 
 		StoredProcedureAttributes attr = creator.createFrom(method("plus1inout", Integer.class), entityMetadata);
 
@@ -72,7 +77,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictName() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictName() {
 
 		StoredProcedureAttributes attr = creator.createFrom(method("explicitlyNamedPlus1inout", Integer.class),
 				entityMetadata);
@@ -83,7 +88,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameValue() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameValue() {
 
 		StoredProcedureAttributes attr = creator.createFrom(method("explicitlyNamedPlus1inout", Integer.class),
 				entityMetadata);
@@ -94,7 +99,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameAlias() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameAlias() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("explicitPlus1inoutViaProcedureNameAlias", Integer.class), entityMetadata);
@@ -105,7 +110,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-1297
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameAliasAndOutputParameterName() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodWithExplictProcedureNameAliasAndOutputParameterName() {
 
 		StoredProcedureAttributes attr = creator.createFrom(
 				method("explicitPlus1inoutViaProcedureNameAliasAndOutputParameterName", Integer.class), entityMetadata);
@@ -116,7 +121,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedure() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedure() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("entityAnnotatedCustomNamedProcedurePlus1IO", Integer.class), entityMetadata);
@@ -127,7 +132,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-707
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedureAndOutputParamName() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedureAndOutputParamName() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("entityAnnotatedCustomNamedProcedureOutputParamNamePlus1IO", Integer.class), entityMetadata);
@@ -138,7 +143,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-707
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedureAnd2OutParams() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithExplicitlyNamedProcedureAnd2OutParams() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("entityAnnotatedCustomNamedProcedurePlus1IO2", Integer.class), entityMetadata);
@@ -151,7 +156,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-455
-	public void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithImplicitlyNamedProcedure() {
+	void shouldCreateStoredProcedureAttributesFromProcedureMethodBackedWithImplicitlyNamedProcedure() {
 
 		StoredProcedureAttributes attr = creator.createFrom(method("plus1", Integer.class), entityMetadata);
 
@@ -161,7 +166,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-871
-	public void aliasedStoredProcedure() {
+	void aliasedStoredProcedure() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("plus1inoutWithComposedAnnotationOverridingProcedureName", Integer.class), entityMetadata);
@@ -172,7 +177,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	}
 
 	@Test // DATAJPA-871
-	public void aliasedStoredProcedure2() {
+	void aliasedStoredProcedure2() {
 
 		StoredProcedureAttributes attr = creator
 				.createFrom(method("plus1inoutWithComposedAnnotationOverridingName", Integer.class), entityMetadata);
@@ -190,6 +195,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	 * @author Thomas Darimont
 	 */
 	@SuppressWarnings("unused")
+	private
 	interface DummyRepository {
 
 		/**
@@ -260,7 +266,7 @@ public class StoredProcedureAttributeSourceUnitTests {
 	@SuppressWarnings("unused")
 	@Procedure
 	@Retention(RetentionPolicy.RUNTIME)
-	@interface ComposedProcedureUsingAliasFor {
+	private @interface ComposedProcedureUsingAliasFor {
 
 		@AliasFor(annotation = Procedure.class, attribute = "value")
 		String dbProcedureName() default "";

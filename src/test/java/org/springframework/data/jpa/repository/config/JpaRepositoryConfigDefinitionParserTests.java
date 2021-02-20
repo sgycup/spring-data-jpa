@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.jpa.repository.config;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -30,10 +30,10 @@ import org.springframework.core.io.ClassPathResource;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class JpaRepositoryConfigDefinitionParserTests {
+class JpaRepositoryConfigDefinitionParserTests {
 
 	@Test
-	public void getsTransactionManagerSet() throws Exception {
+	void getsTransactionManagerSet() throws Exception {
 
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);

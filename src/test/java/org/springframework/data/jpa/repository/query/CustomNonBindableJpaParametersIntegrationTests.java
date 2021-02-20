@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,22 +38,22 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Tests that the requirement of binding an argument to a query can get controlled by a module extending Spring Data
  * JPA.
- * 
+ *
  * @author Réda Housni Alaoui
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class CustomNonBindableJpaParametersIntegrationTests {
 
 	@Autowired ProductRepository products;
 
 	@Test // DATAJPA-1497
-	public void methodWithNonBindableParameterCanBeCalled() {
+	void methodWithNonBindableParameterCanBeCalled() {
 
 		Product product = products.save(new Product());
 
@@ -82,7 +83,7 @@ public class CustomNonBindableJpaParametersIntegrationTests {
 
 	private static class NonBindableAwareJpaParameters extends JpaParameters {
 
-		public NonBindableAwareJpaParameters(Method method) {
+		NonBindableAwareJpaParameters(Method method) {
 			super(method);
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import com.querydsl.jpa.impl.JPAQuery;
  * @author Thomas Darimont
  * @author Mark Paluch
  * @author Christoph Strobl
+ * @author Marcus Voltolim
  */
 public class Querydsl {
 
@@ -235,7 +236,7 @@ public class Querydsl {
 
 		while (path != null) {
 
-			sortPropertyExpression = !path.hasNext() && order.isIgnoreCase() //
+			sortPropertyExpression = !path.hasNext() && order.isIgnoreCase() && String.class.equals(path.getType()) //
 					? Expressions.stringPath((Path<?>) sortPropertyExpression, path.getSegment()).lower() //
 					: Expressions.path(path.getType(), (Path<?>) sortPropertyExpression, path.getSegment());
 

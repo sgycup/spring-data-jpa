@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +38,7 @@ import org.springframework.data.jpa.domain.sample.Dummy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.jpa.repository.sample.DummyRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -50,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @ContextConfiguration(classes = StoredProcedureIntegrationTests.TestConfig.class)
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class StoredProcedureIntegrationTests {
 
 	private static final String NOT_SUPPORTED = "Stored procedures with ResultSets are currently not supported for any JPA provider";
@@ -58,29 +59,29 @@ public class StoredProcedureIntegrationTests {
 	@PersistenceContext EntityManager em;
 	@Autowired DummyRepository repository;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteAdHocProcedureWithNoInputAnd1OutputParameter() {
+	void shouldExecuteAdHocProcedureWithNoInputAnd1OutputParameter() {
 		assertThat(repository.adHocProcedureWithNoInputAnd1OutputParameter()).isEqualTo(42);
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameter() {
+	void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameter() {
 		assertThat(repository.adHocProcedureWith1InputAnd1OutputParameter(23)).isEqualTo(24);
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteAdHocProcedureWith1InputAndNoOutputParameter() {
+	void shouldExecuteAdHocProcedureWith1InputAndNoOutputParameter() {
 		repository.adHocProcedureWith1InputAndNoOutputParameter(42);
 	}
 
 	@Test // DATAJPA-652
-	@Ignore(NOT_SUPPORTED)
-	public void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithResultSet() {
+	@Disabled(NOT_SUPPORTED)
+	void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithResultSet() {
 
 		List<Dummy> dummies = repository.adHocProcedureWith1InputAnd1OutputParameterWithResultSet("FOO");
 
@@ -89,8 +90,8 @@ public class StoredProcedureIntegrationTests {
 	}
 
 	@Test // DATAJPA-652
-	@Ignore(NOT_SUPPORTED)
-	public void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithResultSetWithUpdate() {
+	@Disabled(NOT_SUPPORTED)
+	void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithResultSetWithUpdate() {
 
 		List<Dummy> dummies = repository.adHocProcedureWith1InputAnd1OutputParameterWithResultSetWithUpdate("FOO");
 
@@ -99,28 +100,28 @@ public class StoredProcedureIntegrationTests {
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithUpdate() {
+	void shouldExecuteAdHocProcedureWith1InputAnd1OutputParameterWithUpdate() {
 		repository.adHocProcedureWith1InputAndNoOutputParameterWithUpdate("FOO");
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteProcedureWithNoInputAnd1OutputParameter() {
+	void shouldExecuteProcedureWithNoInputAnd1OutputParameter() {
 		assertThat(repository.procedureWithNoInputAnd1OutputParameter()).isEqualTo(42);
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteProcedureWith1InputAnd1OutputParameter() {
+	void shouldExecuteProcedureWith1InputAnd1OutputParameter() {
 		assertThat(repository.procedureWith1InputAnd1OutputParameter(23)).isEqualTo(24);
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteProcedureWith1InputAndNoOutputParameter() {
+	void shouldExecuteProcedureWith1InputAndNoOutputParameter() {
 		repository.procedureWith1InputAndNoOutputParameter(42);
 	}
 
 	@Test // DATAJPA-652
-	@Ignore(NOT_SUPPORTED)
-	public void shouldExecuteProcedureWith1InputAnd1OutputParameterWithResultSet() {
+	@Disabled(NOT_SUPPORTED)
+	void shouldExecuteProcedureWith1InputAnd1OutputParameterWithResultSet() {
 
 		List<Dummy> dummies = repository.procedureWith1InputAnd1OutputParameterWithResultSet("FOO");
 
@@ -129,8 +130,8 @@ public class StoredProcedureIntegrationTests {
 	}
 
 	@Test // DATAJPA-652
-	@Ignore(NOT_SUPPORTED)
-	public void shouldExecuteProcedureWith1InputAnd1OutputParameterWithResultSetWithUpdate() {
+	@Disabled(NOT_SUPPORTED)
+	void shouldExecuteProcedureWith1InputAnd1OutputParameterWithResultSetWithUpdate() {
 
 		List<Dummy> dummies = repository.procedureWith1InputAnd1OutputParameterWithResultSetWithUpdate("FOO");
 
@@ -139,7 +140,7 @@ public class StoredProcedureIntegrationTests {
 	}
 
 	@Test // DATAJPA-652
-	public void shouldExecuteProcedureWith1InputAnd1OutputParameterWithUpdate() {
+	void shouldExecuteProcedureWith1InputAnd1OutputParameterWithUpdate() {
 		repository.procedureWith1InputAndNoOutputParameterWithUpdate("FOO");
 	}
 

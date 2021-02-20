@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@ import static org.springframework.data.domain.Sort.Direction.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
@@ -38,7 +39,7 @@ import org.springframework.data.jpa.repository.sample.RoleRepository;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Oliver Gierke
  * @see QueryLookupStrategy
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:config/namespace-application-context.xml")
 @Transactional
 public class UserRepositoryFinderTests {
@@ -56,11 +57,15 @@ public class UserRepositoryFinderTests {
 	@Autowired UserRepository userRepository;
 	@Autowired RoleRepository roleRepository;
 
-	User dave, carter, oliver;
-	Role drummer, guitarist, singer;
+	private User dave;
+	private User carter;
+	private User oliver;
+	private Role drummer;
+	private Role guitarist;
+	private Role singer;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		drummer = roleRepository.save(new Role("DRUMMER"));
 		guitarist = roleRepository.save(new Role("GUITARIST"));
@@ -71,8 +76,8 @@ public class UserRepositoryFinderTests {
 		oliver = userRepository.save(new User("Oliver August", "Matthews", "oliver@dmband.com"));
 	}
 
-	@After
-	public void clearUp() {
+	@AfterEach
+	void clearUp() {
 
 		userRepository.deleteAll();
 		roleRepository.deleteAll();
@@ -82,7 +87,7 @@ public class UserRepositoryFinderTests {
 	 * Tests creation of a simple query.
 	 */
 	@Test
-	public void testSimpleCustomCreatedFinder() {
+	void testSimpleCustomCreatedFinder() {
 
 		User user = userRepository.findByEmailAddressAndLastname("dave@dmband.com", "Matthews");
 		assertThat(user).isEqualTo(dave);
@@ -93,7 +98,7 @@ public class UserRepositoryFinderTests {
 	 * object.
 	 */
 	@Test
-	public void returnsNullIfNothingFound() {
+	void returnsNullIfNothingFound() {
 
 		User user = userRepository.findByEmailAddress("foobar");
 		assertThat(user).isNull();
@@ -103,7 +108,7 @@ public class UserRepositoryFinderTests {
 	 * Tests creation of a simple query consisting of {@code AND} and {@code OR} parts.
 	 */
 	@Test
-	public void testAndOrFinder() {
+	void testAndOrFinder() {
 
 		List<User> users = userRepository.findByEmailAddressAndLastnameOrFirstname("dave@dmband.com", "Matthews", "Carter");
 
@@ -112,7 +117,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test
-	public void executesPagingMethodToPageCorrectly() {
+	void executesPagingMethodToPageCorrectly() {
 
 		Page<User> page = userRepository.findByLastname(PageRequest.of(0, 1), "Matthews");
 
@@ -122,14 +127,14 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test
-	public void executesPagingMethodToListCorrectly() {
+	void executesPagingMethodToListCorrectly() {
 
 		List<User> list = userRepository.findByFirstname("Carter", PageRequest.of(0, 1));
 		assertThat(list).containsExactly(carter);
 	}
 
 	@Test
-	public void executesInKeywordForPageCorrectly() {
+	void executesInKeywordForPageCorrectly() {
 
 		Page<User> page = userRepository.findByFirstnameIn(PageRequest.of(0, 1), "Dave", "Oliver August");
 
@@ -139,7 +144,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test
-	public void executesNotInQueryCorrectly() throws Exception {
+	void executesNotInQueryCorrectly() throws Exception {
 
 		List<User> result = userRepository.findByFirstnameNotIn(Arrays.asList("Dave", "Carter"));
 
@@ -147,7 +152,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-92
-	public void findsByLastnameIgnoringCase() {
+	void findsByLastnameIgnoringCase() {
 
 		List<User> result = userRepository.findByLastnameIgnoringCase("BeAUfoRd");
 
@@ -155,7 +160,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-92
-	public void findsByLastnameIgnoringCaseLike() throws Exception {
+	void findsByLastnameIgnoringCaseLike() throws Exception {
 
 		List<User> result = userRepository.findByLastnameIgnoringCaseLike("BeAUfo%");
 
@@ -163,7 +168,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-92
-	public void findByLastnameAndFirstnameAllIgnoringCase() {
+	void findByLastnameAndFirstnameAllIgnoringCase() {
 
 		List<User> result = userRepository.findByLastnameAndFirstnameAllIgnoringCase("MaTTheWs", "DaVe");
 
@@ -171,7 +176,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-94
-	public void respectsPageableOrderOnQueryGenerateFromMethodName() {
+	void respectsPageableOrderOnQueryGenerateFromMethodName() {
 
 		Page<User> ascending = userRepository.findByLastnameIgnoringCase( //
 				PageRequest.of(0, 10, Sort.by(ASC, "firstname")), //
@@ -187,7 +192,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-486
-	public void executesQueryToSlice() {
+	void executesQueryToSlice() {
 
 		Slice<User> slice = userRepository.findSliceByLastname("Matthews", PageRequest.of(0, 1, ASC, "firstname"));
 
@@ -196,7 +201,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-1554
-	public void executesQueryToSliceWithUnpaged() {
+	void executesQueryToSliceWithUnpaged() {
 
 		Slice<User> slice = userRepository.findSliceByLastname("Matthews", Pageable.unpaged());
 
@@ -206,21 +211,21 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-830
-	public void executesMethodWithNotContainingOnStringCorrectly() {
+	void executesMethodWithNotContainingOnStringCorrectly() {
 
 		assertThat(userRepository.findByLastnameNotContaining("u")) //
 				.containsExactly(dave, oliver);
 	}
 
 	@Test // DATAJPA-1519
-	public void parametersForContainsGetProperlyEscaped() {
+	void parametersForContainsGetProperlyEscaped() {
 
 		assertThat(userRepository.findByFirstnameContaining("liv%")) //
 				.isEmpty();
 	}
 
 	@Test // DATAJPA-1519
-	public void escapingInLikeSpels() {
+	void escapingInLikeSpels() {
 
 		User extra = new User("extra", "Matt_ew", "extra");
 
@@ -230,7 +235,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-1522
-	public void escapingInLikeSpelsInThePresenceOfEscapeCharacters() {
+	void escapingInLikeSpelsInThePresenceOfEscapeCharacters() {
 
 		User withEscapeCharacter = userRepository.save(new User("extra", "Matt\\xew", "extra1"));
 		userRepository.save(new User("extra", "Matt\\_ew", "extra2"));
@@ -239,7 +244,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-1522
-	public void escapingInLikeSpelsInThePresenceOfEscapedWildcards() {
+	void escapingInLikeSpelsInThePresenceOfEscapedWildcards() {
 
 		userRepository.save(new User("extra", "Matt\\xew", "extra1"));
 		User withEscapedWildcard = userRepository.save(new User("extra", "Matt\\_ew", "extra2"));
@@ -248,7 +253,7 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-829
-	public void translatesContainsToMemberOf() {
+	void translatesContainsToMemberOf() {
 
 		assertThat(userRepository.findByRolesContaining(singer)) //
 				.containsExactlyInAnyOrder(dave, carter);
@@ -258,27 +263,29 @@ public class UserRepositoryFinderTests {
 	}
 
 	@Test // DATAJPA-829
-	public void translatesNotContainsToNotMemberOf() {
+	void translatesNotContainsToNotMemberOf() {
 
 		assertThat(userRepository.findByRolesNotContaining(drummer)) //
 				.containsExactlyInAnyOrder(dave, oliver);
 	}
 
 	@Test // DATAJPA-974
-	public void executesQueryWithProjectionContainingReferenceToPluralAttribute() {
+	void executesQueryWithProjectionContainingReferenceToPluralAttribute() {
 
 		assertThat(userRepository.findRolesAndFirstnameBy()) //
 				.isNotNull();
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class) // DATAJPA-1023, DATACMNS-959
+	@Test // DATAJPA-1023, DATACMNS-959
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public void rejectsStreamExecutionIfNoSurroundingTransactionActive() {
-		userRepository.findAllByCustomQueryAndStream();
+	void rejectsStreamExecutionIfNoSurroundingTransactionActive() {
+
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> userRepository.findAllByCustomQueryAndStream());
 	}
 
 	@Test // DATAJPA-1334
-	public void executesNamedQueryWithConstructorExpression() {
+	void executesNamedQueryWithConstructorExpression() {
 		userRepository.findByNamedQueryWithConstructorExpression();
 	}
 }

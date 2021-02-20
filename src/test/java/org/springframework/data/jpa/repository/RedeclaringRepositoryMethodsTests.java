@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,31 +30,32 @@ import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.sample.RedeclaringRepositoryMethodsRepository;
 import org.springframework.data.jpa.repository.sample.SampleConfig;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Darimont
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SampleConfig.class)
 @Transactional
 public class RedeclaringRepositoryMethodsTests {
 
 	@Autowired RedeclaringRepositoryMethodsRepository repository;
 
-	User ollie, tom;
+	private User ollie;
+	private User tom;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		ollie = new User("Oliver", "Gierke", "ogierke@gopivotal.com");
 		tom = new User("Thomas", "Darimont", "tdarimont@gopivotal.com");
 	}
 
 	@Test // DATAJPA-398
-	public void adjustedWellKnownPagedFindAllMethodShouldReturnOnlyTheUserWithFirstnameOliver() {
+	void adjustedWellKnownPagedFindAllMethodShouldReturnOnlyTheUserWithFirstnameOliver() {
 
 		ollie = repository.save(ollie);
 		tom = repository.save(tom);
@@ -65,7 +67,7 @@ public class RedeclaringRepositoryMethodsTests {
 	}
 
 	@Test // DATAJPA-398
-	public void adjustedWllKnownFindAllMethodShouldReturnAnEmptyList() {
+	void adjustedWllKnownFindAllMethodShouldReturnAnEmptyList() {
 
 		ollie = repository.save(ollie);
 		tom = repository.save(tom);

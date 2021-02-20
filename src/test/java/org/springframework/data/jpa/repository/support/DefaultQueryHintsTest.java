@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,61 +21,71 @@ import static org.mockito.Mockito.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link DefaultQueryHints}.
  *
  * @author Jens Schauder
  */
-public class DefaultQueryHintsTest {
+class DefaultQueryHintsTest {
 
-	JpaEntityInformation<?, ?> information = mock(JpaEntityInformation.class);
-	CrudMethodMetadata metadata = mock(CrudMethodMetadata.class);
+	private JpaEntityInformation<?, ?> information = mock(JpaEntityInformation.class);
+	private CrudMethodMetadata metadata = mock(CrudMethodMetadata.class);
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 
 		setupMainHints();
 		setUpCountHints();
 	}
 
 	@Test // DATAJPA-1156
-	public void mainHints() {
+	void mainHints() {
 
 		QueryHints hints = DefaultQueryHints.of(information, metadata);
 
-		assertThat(hints.asMap()) //
-				.extracting("name1", "name2", "n1", "n2") //
-				.containsExactly("value1", "value2", null, null);
+		Map<String, Object> collectedHints=new HashMap<>();
+		hints.forEach(collectedHints::put);
+
+		assertThat(collectedHints) //
+				.contains( //
+						entry("name1", "value1"), //
+						entry("name2", "value2") //
+				);
 	}
 
 	@Test // DATAJPA-1156
-	public void countHints() {
+	void countHints() {
 
 		QueryHints hints = DefaultQueryHints.of(information, metadata).forCounts();
 
-		assertThat(hints.asMap()) //
-				.extracting("name1", "name2", "n1", "n2") //
-				.containsExactly(null, null, "1", "2");
+		Map<String, Object> collectedHints=new HashMap<>();
+		hints.forEach(collectedHints::put);
+
+		assertThat(collectedHints) //
+				.contains( //
+						entry("n1", "1"), //
+						entry("n2", "2") //
+				);
 	}
 
 	private void setupMainHints() {
 
-		Map<String, Object> mainHintMap = new HashMap<>();
-		mainHintMap.put("name1", "value1");
-		mainHintMap.put("name2", "value2");
+		MutableQueryHints mainHints = new MutableQueryHints();
+		mainHints.add("name1", "value1");
+		mainHints.add("name2", "value2");
 
-		when(metadata.getQueryHints()).thenReturn(mainHintMap);
+		when(metadata.getQueryHints()).thenReturn(mainHints);
 	}
 
 	private void setUpCountHints() {
 
-		Map<String, Object> countHintMap = new HashMap<>();
-		countHintMap.put("n1", "1");
-		countHintMap.put("n2", "2");
+		MutableQueryHints countHints = new MutableQueryHints();
+		countHints.add("n1", "1");
+		countHints.add("n2", "2");
 
-		when(metadata.getQueryHintsForCount()).thenReturn(countHintMap);
+		when(metadata.getQueryHintsForCount()).thenReturn(countHints);
 	}
 }

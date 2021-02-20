@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.QUser;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,18 +39,19 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Thomas Darimont
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:infrastructure.xml" })
 @Transactional
 public class QuerydslRepositorySupportTests {
 
 	@PersistenceContext EntityManager em;
 
-	UserRepository repository;
-	User dave, carter;
+	private UserRepository repository;
+	private User dave;
+	private User carter;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		dave = new User("Dave", "Matthews", "dave@matthews.com");
 		em.persist(dave);
@@ -65,7 +67,7 @@ public class QuerydslRepositorySupportTests {
 	}
 
 	@Test
-	public void readsUsersCorrectly() throws Exception {
+	void readsUsersCorrectly() throws Exception {
 
 		List<User> result = repository.findUsersByLastname("Matthews");
 		assertThat(result.size()).isEqualTo(1);
@@ -77,7 +79,7 @@ public class QuerydslRepositorySupportTests {
 	}
 
 	@Test
-	public void updatesUsersCorrectly() throws Exception {
+	void updatesUsersCorrectly() throws Exception {
 
 		long updates = repository.updateLastnamesTo("Foo");
 		assertThat(updates).isEqualTo(2L);
@@ -94,7 +96,7 @@ public class QuerydslRepositorySupportTests {
 	}
 
 	@Test
-	public void deletesAllWithLastnameCorrectly() throws Exception {
+	void deletesAllWithLastnameCorrectly() {
 
 		long updates = repository.deleteAllWithLastname("Matthews");
 		assertThat(updates).isEqualTo(1L);
@@ -107,11 +109,11 @@ public class QuerydslRepositorySupportTests {
 		assertThat(result.get(0)).isEqualTo(carter);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsUnsetEntityManager() throws Exception {
+	@Test
+	void rejectsUnsetEntityManager() {
 
 		UserRepositoryImpl repositoryImpl = new UserRepositoryImpl();
-		repositoryImpl.validate();
+		assertThatIllegalArgumentException().isThrownBy(repositoryImpl::validate);
 	}
 
 	interface UserRepository {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +38,7 @@ import org.springframework.data.jpa.repository.sample.SampleConfig;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -47,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jens Schauder
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SampleConfig.class)
 public class MappedTypeRepositoryIntegrationTests {
 
@@ -57,7 +58,7 @@ public class MappedTypeRepositoryIntegrationTests {
 	@Autowired EntityManager entityManager;
 
 	@Test // DATAJPA-170
-	public void supportForExpressionBasedQueryMethods() {
+	void supportForExpressionBasedQueryMethods() {
 
 		concreteRepository1.save(new ConcreteType1("foo"));
 		concreteRepository2.save(new ConcreteType2("foo"));
@@ -70,7 +71,7 @@ public class MappedTypeRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-424
-	public void supportForPaginationCustomQueryMethodsWithEntityExpression() {
+	void supportForPaginationCustomQueryMethodsWithEntityExpression() {
 
 		concreteRepository1.save(new ConcreteType1("foo"));
 		concreteRepository2.save(new ConcreteType2("foo"));
@@ -83,7 +84,7 @@ public class MappedTypeRepositoryIntegrationTests {
 
 	@Test // DATAJPA-1535
 	@SuppressWarnings("unchecked")
-	public void deletesConcreteInstancesForRepositoryBoundToMappedSuperclass() {
+	void deletesConcreteInstancesForRepositoryBoundToMappedSuperclass() {
 
 		JpaRepositoryFactory factory = new JpaRepositoryFactory(entityManager);
 		CustomMappedTypeRepository<AbstractMappedType> repository = factory.getRepository(CustomMappedTypeRepository.class);

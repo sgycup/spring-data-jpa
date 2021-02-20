@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.jpa.support;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -25,10 +26,13 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -44,38 +48,39 @@ import org.springframework.test.util.ReflectionTestUtils;
  * @author Oliver Gierke
  * @author Thomas Darimont
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ClasspathScanningPersistenceUnitPostProcessorUnitTests {
 
 	@Mock MutablePersistenceUnitInfo pui;
-	String basePackage = getClass().getPackage().getName();
+	private String basePackage = getClass().getPackage().getName();
 
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsNullBasePackage() {
-		new ClasspathScanningPersistenceUnitPostProcessor(null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsEmptyBasePackage() {
-		new ClasspathScanningPersistenceUnitPostProcessor("");
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsNullMappingFileNamePattern() {
-		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
-				basePackage);
-		processor.setMappingFileNamePattern(null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsEmptyMappingFileNamePattern() {
-		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
-				basePackage);
-		processor.setMappingFileNamePattern("");
+	@Test
+	void rejectsNullBasePackage() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClasspathScanningPersistenceUnitPostProcessor(null));
 	}
 
 	@Test
-	public void findsEntityClassesForBasePackage() {
+	void rejectsEmptyBasePackage() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClasspathScanningPersistenceUnitPostProcessor(""));
+	}
+
+	@Test
+	void rejectsNullMappingFileNamePattern() {
+		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
+				basePackage);
+		assertThatIllegalArgumentException().isThrownBy(() -> processor.setMappingFileNamePattern(null));
+	}
+
+	@Test
+	void rejectsEmptyMappingFileNamePattern() {
+		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
+				basePackage);
+		assertThatIllegalArgumentException().isThrownBy(() -> processor.setMappingFileNamePattern(""));
+	}
+
+	@Test
+	void findsEntityClassesForBasePackage() {
 
 		PersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(basePackage);
 		processor.postProcessPersistenceUnitInfo(pui);
@@ -84,7 +89,7 @@ public class ClasspathScanningPersistenceUnitPostProcessorUnitTests {
 	}
 
 	@Test // DATAJPA-407
-	public void findsMappingFile() {
+	void findsMappingFile() {
 
 		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
 				basePackage);
@@ -99,7 +104,7 @@ public class ClasspathScanningPersistenceUnitPostProcessorUnitTests {
 	}
 
 	@Test // DATAJPA-353, DATAJPA-407
-	public void shouldFindJpaMappingFilesFromMultipleLocationsOnClasspath() {
+	void shouldFindJpaMappingFilesFromMultipleLocationsOnClasspath() {
 
 		ClasspathScanningPersistenceUnitPostProcessor processor = new ClasspathScanningPersistenceUnitPostProcessor(
 				basePackage);
@@ -113,7 +118,7 @@ public class ClasspathScanningPersistenceUnitPostProcessorUnitTests {
 	}
 
 	@Test // DATAJPA-519
-	public void shouldFindJpaMappingFilesFromNestedJarLocationsOnClasspath() {
+	void shouldFindJpaMappingFilesFromNestedJarLocationsOnClasspath() {
 
 		String nestedModule3Path = "org/springframework/data/jpa/support/module3/module3-orm.xml";
 		final String fileInJarUrl = "jar:file:/foo/bar/lib/somelib.jar!/" + nestedModule3Path;

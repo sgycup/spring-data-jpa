@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,10 @@ import javax.persistence.criteria.Root;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +44,7 @@ import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.domain.sample.User_;
 import org.springframework.data.jpa.repository.sample.RepositoryMethodsWithEntityGraphConfigRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -55,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Christoph Strobl
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:config/namespace-autoconfig-context.xml")
 @Transactional
 public class EntityGraphRepositoryMethodsIntegrationTests {
@@ -63,15 +64,15 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	@Autowired EntityManager em;
 	@Autowired RepositoryMethodsWithEntityGraphConfigRepository repository;
 
-	User tom;
-	User ollie;
-	User christoph;
-	Role role;
+	private User tom;
+	private User ollie;
+	private User christoph;
+	private Role role;
 
-	PersistenceUtil util = Persistence.getPersistenceUtil();
+	private PersistenceUtil util = Persistence.getPersistenceUtil();
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		tom = new User("Thomas", "Darimont", "tdarimont@example.org");
 		ollie = new User("Oliver", "Gierke", "ogierke@example.org");
@@ -93,7 +94,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-612
-	public void shouldRespectConfiguredJpaEntityGraph() {
+	void shouldRespectConfiguredJpaEntityGraph() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -108,7 +109,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-689
-	public void shouldRespectConfiguredJpaEntityGraphInFindOne() {
+	void shouldRespectConfiguredJpaEntityGraphInFindOne() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -124,7 +125,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-696
-	public void shouldRespectInferFetchGraphFromMethodName() {
+	void shouldRespectInferFetchGraphFromMethodName() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -140,7 +141,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-696
-	public void shouldRespectDynamicFetchGraphForGetOneWithAttributeNamesById() {
+	void shouldRespectDynamicFetchGraphForGetOneWithAttributeNamesById() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -166,7 +167,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-790, DATAJPA-1087
-	public void shouldRespectConfiguredJpaEntityGraphWithPaginationAndQueryDslPredicates() {
+	void shouldRespectConfiguredJpaEntityGraphWithPaginationAndQueryDslPredicates() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -182,7 +183,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-1207
-	public void shouldRespectConfiguredJpaEntityGraphWithPaginationAndSpecification() {
+	void shouldRespectConfiguredJpaEntityGraphWithPaginationAndSpecification() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -202,7 +203,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-1041
-	public void shouldRespectNamedEntitySubGraph() {
+	void shouldRespectNamedEntitySubGraph() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -227,7 +228,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-1041
-	public void shouldRespectMultipleSubGraphForSameAttributeWithDynamicFetchGraph() {
+	void shouldRespectMultipleSubGraphForSameAttributeWithDynamicFetchGraph() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -252,7 +253,7 @@ public class EntityGraphRepositoryMethodsIntegrationTests {
 	}
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void shouldCreateDynamicGraphWithMultipleLevelsOfSubgraphs() {
+	void shouldCreateDynamicGraphWithMultipleLevelsOfSubgraphs() {
 
 		Assume.assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 		em.flush();

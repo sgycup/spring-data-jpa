@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author or authors.
+ * Copyright 2016-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,14 @@ import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.data.jpa.repository.query.AbstractJpaQuery.TupleConverter;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.CrudRepository;
@@ -47,17 +50,18 @@ import org.springframework.data.repository.query.ReturnedType;
  * @author Jens Schauder
  * @soundtrack James Bay - Let it go (Chaos and the Calm)
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class TupleConverterUnitTests {
 
 	@Mock Tuple tuple;
 	@Mock TupleElement<String> element;
 	@Mock ProjectionFactory factory;
 
-	ReturnedType type;
+	private ReturnedType type;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 
 		RepositoryMetadata metadata = new DefaultRepositoryMetadata(SampleRepository.class);
 		QueryMethod method = new QueryMethod(SampleRepository.class.getMethod("someMethod"), metadata, factory);
@@ -67,7 +71,7 @@ public class TupleConverterUnitTests {
 
 	@Test // DATAJPA-984
 	@SuppressWarnings("unchecked")
-	public void returnsSingleTupleElementIfItMatchesExpectedType() {
+	void returnsSingleTupleElementIfItMatchesExpectedType() {
 
 		doReturn(Collections.singletonList(element)).when(tuple).getElements();
 		doReturn("Foo").when(tuple).get(element);
@@ -79,7 +83,7 @@ public class TupleConverterUnitTests {
 
 	@Test // DATAJPA-1024
 	@SuppressWarnings("unchecked")
-	public void returnsNullForSingleElementTupleWithNullValue() {
+	void returnsNullForSingleElementTupleWithNullValue() {
 
 		doReturn(Collections.singletonList(element)).when(tuple).getElements();
 		doReturn(null).when(tuple).get(element);
@@ -91,7 +95,7 @@ public class TupleConverterUnitTests {
 
 	@SuppressWarnings("unchecked")
 	@Test // DATAJPA-1048
-	public void findsValuesForAllVariantsSupportedByTheTuple() {
+	void findsValuesForAllVariantsSupportedByTheTuple() {
 
 		Tuple tuple = new MockTuple();
 

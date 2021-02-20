@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.util.Date;
 
 import javax.persistence.TemporalType;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.jpa.repository.query.JpaParameters.JpaParameter;
 
@@ -33,10 +33,10 @@ import org.springframework.data.jpa.repository.query.JpaParameters.JpaParameter;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class JpaParametersUnitTests {
+class JpaParametersUnitTests {
 
 	@Test
-	public void findsTemporalParameterConfiguration() throws Exception {
+	void findsTemporalParameterConfiguration() throws Exception {
 
 		Method method = SampleRepository.class.getMethod("foo", Date.class, String.class);
 

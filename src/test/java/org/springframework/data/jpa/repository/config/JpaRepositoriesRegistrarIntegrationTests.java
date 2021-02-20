@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ClassUtils;
 
@@ -50,7 +51,7 @@ import org.springframework.util.ClassUtils;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class JpaRepositoriesRegistrarIntegrationTests {
 
@@ -94,12 +95,12 @@ public class JpaRepositoriesRegistrarIntegrationTests {
 	}
 
 	@Test
-	public void foo() {
+	void foo() {
 		assertThat(repository).isNotNull();
 	}
 
 	@Test // DATAJPA-330
-	public void doesNotProxyPlainAtRepositoryBeans() {
+	void doesNotProxyPlainAtRepositoryBeans() {
 
 		assertThat(sampleRepository).isNotNull();
 		assertThat(ClassUtils.isCglibProxy(sampleRepository)).isFalse();

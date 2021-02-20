@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,16 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.query.ParameterMetadataProvider.ParameterMetadata;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -41,14 +42,14 @@ import org.springframework.test.util.ReflectionTestUtils;
  * @author Jens Schauder
  * @soundtrack Elephants Crossing - We are (Irrelephant)
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:infrastructure.xml")
-public class ParameterMetadataProviderIntegrationTests {
+class ParameterMetadataProviderIntegrationTests {
 
 	@PersistenceContext EntityManager em;
 
 	@Test // DATAJPA-758
-	public void forwardsParameterNameIfTransparentlyNamed() throws Exception {
+	void forwardsParameterNameIfTransparentlyNamed() throws Exception {
 
 		ParameterMetadataProvider provider = createProvider(Sample.class.getMethod("findByFirstname", String.class));
 		ParameterMetadata<Object> metadata = provider.next(new Part("firstname", User.class));
@@ -57,7 +58,7 @@ public class ParameterMetadataProviderIntegrationTests {
 	}
 
 	@Test // DATAJPA-758
-	public void forwardsParameterNameIfExplicitlyAnnotated() throws Exception {
+	void forwardsParameterNameIfExplicitlyAnnotated() throws Exception {
 
 		ParameterMetadataProvider provider = createProvider(Sample.class.getMethod("findByLastname", String.class));
 		ParameterMetadata<Object> metadata = provider.next(new Part("lastname", User.class));
@@ -66,7 +67,7 @@ public class ParameterMetadataProviderIntegrationTests {
 	}
 
 	@Test // DATAJPA-772
-	public void doesNotApplyLikeExpansionOnNonStringProperties() throws Exception {
+	void doesNotApplyLikeExpansionOnNonStringProperties() throws Exception {
 
 		ParameterMetadataProvider provider = createProvider(Sample.class.getMethod("findByAgeContaining", Integer.class));
 		ParameterMetadata<Object> metadata = provider.next(new Part("ageContaining", User.class));

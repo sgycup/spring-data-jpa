@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package org.springframework.data.jpa.repository.query;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 /**
@@ -32,14 +35,15 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
  * @author Jens Schauder
  * @author Mark Paluch
  */
-@RunWith(MockitoJUnitRunner.class)
-public class ExpressionBasedStringQueryUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ExpressionBasedStringQueryUnitTests {
 
-	static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
+	private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
 	@Mock JpaEntityMetadata<?> metadata;
 
 	@Test // DATAJPA-170
-	public void shouldReturnQueryWithDomainTypeExpressionReplacedWithSimpleDomainTypeName() {
+	void shouldReturnQueryWithDomainTypeExpressionReplacedWithSimpleDomainTypeName() {
 
 		when(metadata.getEntityName()).thenReturn("User");
 
@@ -49,7 +53,7 @@ public class ExpressionBasedStringQueryUnitTests {
 	}
 
 	@Test // DATAJPA-424
-	public void renderAliasInExpressionQueryCorrectly() {
+	void renderAliasInExpressionQueryCorrectly() {
 
 		when(metadata.getEntityName()).thenReturn("User");
 
@@ -59,7 +63,7 @@ public class ExpressionBasedStringQueryUnitTests {
 	}
 
 	@Test // DATAJPA-1695
-	public void shouldDetectBindParameterCountCorrectly() {
+	void shouldDetectBindParameterCountCorrectly() {
 
 		StringQuery query = new ExpressionBasedStringQuery(
 				"select n from NetworkServer n where (LOWER(n.name) LIKE LOWER(NULLIF(text(concat('%',:#{#networkRequest.name},'%')), '')) OR :#{#networkRequest.name} IS NULL )\"\n"

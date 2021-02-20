@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ public abstract class AbstractMappedType {
 
 	@Id @GeneratedValue @Getter Long id;
 	@Version Long version;
-	String attribute1;
+	private String attribute1;
 
-	public AbstractMappedType() {}
+	AbstractMappedType() {}
 
-	public AbstractMappedType(String attribute1) {
+	AbstractMappedType(String attribute1) {
 		this.attribute1 = attribute1;
 	}
 }

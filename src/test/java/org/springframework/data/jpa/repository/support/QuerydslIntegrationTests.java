@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,19 @@ package org.springframework.data.jpa.repository.support;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.stream.Stream;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -37,28 +40,29 @@ import com.querydsl.jpa.JPQLQuery;
  *
  * @author Thomas Darimont
  * @author Jens Schauder
+ * @author Marcus Voltolim
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:infrastructure.xml" })
 @Transactional
-public class QuerydslIntegrationTests {
+class QuerydslIntegrationTests {
 
 	@PersistenceContext EntityManager em;
 
-	Querydsl querydsl;
-	PathBuilder<User> userPath;
-	JPQLQuery<User> userQuery;
+	private Querydsl querydsl;
+	private PathBuilder<User> userPath;
+	private JPQLQuery<User> userQuery;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
-		userPath = new PathBuilder<User>(User.class, "user");
+		userPath = new PathBuilder<>(User.class, "user");
 		querydsl = new Querydsl(em, userPath);
 		userQuery = querydsl.createQuery().select(userPath);
 	}
 
 	@Test // DATAJPA-499
-	public void defaultOrderingShouldNotGenerateAnNullOrderingHint() {
+	void defaultOrderingShouldNotGenerateAnNullOrderingHint() {
 
 		JPQLQuery<User> result = querydsl.applySorting(Sort.by("firstname"), userQuery);
 
@@ -67,4 +71,18 @@ public class QuerydslIntegrationTests {
 				.doesNotContain("nulls first") //
 				.doesNotContain("nulls last");
 	}
+
+	@Test // DATAJPA-1779
+	void orderWithIgnoreCaseAddLowerOnlyStringType() {
+
+		// firstname (String); id (Integer); dateOfBirth (Date)
+		Sort.Order[] orders = Stream.of("firstname", "id", "dateOfBirth").map(name -> Sort.Order.asc(name).ignoreCase()).toArray(Sort.Order[]::new);
+		JPQLQuery<User> result = querydsl.applySorting(Sort.by(orders), userQuery);
+
+		assertThat(result).isNotNull();
+		assertThat(result.toString()) //
+				.startsWith("select user") //
+				.endsWith("order by lower(user.firstname) asc, user.id asc, user.dateOfBirth asc");
+	}
+
 }

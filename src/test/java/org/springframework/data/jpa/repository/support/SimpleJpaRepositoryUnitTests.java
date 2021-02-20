@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.data.jpa.repository.support;
 
 import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -27,11 +28,14 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.sample.User;
@@ -46,10 +50,11 @@ import org.springframework.data.repository.CrudRepository;
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class SimpleJpaRepositoryUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SimpleJpaRepositoryUnitTests {
 
-	SimpleJpaRepository<User, Integer> repo;
+	private SimpleJpaRepository<User, Integer> repo;
 
 	@Mock EntityManager em;
 	@Mock CriteriaBuilder builder;
@@ -62,8 +67,8 @@ public class SimpleJpaRepositoryUnitTests {
 	@Mock EntityGraph<User> entityGraph;
 	@Mock org.springframework.data.jpa.repository.EntityGraph entityGraphAnnotation;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		when(em.getDelegate()).thenReturn(em);
 
@@ -76,12 +81,16 @@ public class SimpleJpaRepositoryUnitTests {
 		when(em.createQuery(criteriaQuery)).thenReturn(query);
 		when(em.createQuery(countCriteriaQuery)).thenReturn(countQuery);
 
+		MutableQueryHints hints = new MutableQueryHints();
+		when(metadata.getQueryHints()).thenReturn(hints);
+		when(metadata.getQueryHintsForCount()).thenReturn(hints);
+
 		repo = new SimpleJpaRepository<User, Integer>(information, em);
 		repo.setRepositoryMethodMetadata(metadata);
 	}
 
 	@Test // DATAJPA-124, DATAJPA-912
-	public void retrieveObjectsForPageableOutOfRange() {
+	void retrieveObjectsForPageableOutOfRange() {
 
 		when(countQuery.getSingleResult()).thenReturn(20L);
 		repo.findAll(PageRequest.of(2, 10));
@@ -90,7 +99,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void doesNotRetrieveCountWithoutOffsetAndResultsWithinPageSize() {
+	void doesNotRetrieveCountWithoutOffsetAndResultsWithinPageSize() {
 
 		when(query.getResultList()).thenReturn(Arrays.asList(new User(), new User()));
 
@@ -100,7 +109,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void doesNotRetrieveCountWithOffsetAndResultsWithinPageSize() {
+	void doesNotRetrieveCountWithOffsetAndResultsWithinPageSize() {
 
 		when(query.getResultList()).thenReturn(Arrays.asList(new User(), new User()));
 
@@ -109,15 +118,15 @@ public class SimpleJpaRepositoryUnitTests {
 		verify(countQuery, never()).getSingleResult();
 	}
 
-	@Test(expected = EmptyResultDataAccessException.class) // DATAJPA-177
-	public void throwsExceptionIfEntityToDeleteDoesNotExist() {
+	@Test // DATAJPA-177
+	void throwsExceptionIfEntityToDeleteDoesNotExist() {
 
-		repo.deleteById(4711);
+		assertThatExceptionOfType(EmptyResultDataAccessException.class).isThrownBy(() -> repo.deleteById(4711));
 	}
 
 	@Test // DATAJPA-689, DATAJPA-696
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void shouldPropagateConfiguredEntityGraphToFindOne() throws Exception {
+	void shouldPropagateConfiguredEntityGraphToFindOne() throws Exception {
 
 		String entityGraphName = "User.detail";
 		when(entityGraphAnnotation.value()).thenReturn(entityGraphName);
@@ -134,7 +143,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-931
-	public void mergeGetsCalledWhenDetached() {
+	void mergeGetsCalledWhenDetached() {
 
 		User detachedUser = new User();
 
@@ -146,7 +155,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-931, DATAJPA-1261
-	public void mergeGetsCalledWhenAttached() {
+	void mergeGetsCalledWhenAttached() {
 
 		User attachedUser = new User();
 
@@ -158,7 +167,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-1535
-	public void doNothingWhenNewInstanceGetsDeleted() {
+	void doNothingWhenNewInstanceGetsDeleted() {
 
 		User newUser = new User();
 		newUser.setId(null);
@@ -171,7 +180,7 @@ public class SimpleJpaRepositoryUnitTests {
 	}
 
 	@Test // DATAJPA-1535
-	public void doNothingWhenNonExistentInstanceGetsDeleted() {
+	void doNothingWhenNonExistentInstanceGetsDeleted() {
 
 		User newUser = new User();
 		newUser.setId(23);

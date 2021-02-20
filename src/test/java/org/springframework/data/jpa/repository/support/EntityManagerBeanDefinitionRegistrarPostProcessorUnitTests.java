@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -37,7 +37,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 public class EntityManagerBeanDefinitionRegistrarPostProcessorUnitTests {
 
 	@Test // DATAJPA-453
-	public void findsBeanDefinitionInParentBeanFactory() {
+	void findsBeanDefinitionInParentBeanFactory() {
 
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		beanFactory.registerBeanDefinition("factory", new RootBeanDefinition(LocalContainerEntityManagerFactoryBean.class));
@@ -51,7 +51,7 @@ public class EntityManagerBeanDefinitionRegistrarPostProcessorUnitTests {
 	}
 
 	@Test // DATAJPA-1005, DATAJPA-1045
-	public void discoversFactoryBeanReturningConcreteEntityManagerFactoryType() {
+	void discoversFactoryBeanReturningConcreteEntityManagerFactoryType() {
 
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(StubEntityManagerFactoryBean.class);
 		builder.addConstructorArgValue(SpecialEntityManagerFactory.class);
@@ -71,7 +71,7 @@ public class EntityManagerBeanDefinitionRegistrarPostProcessorUnitTests {
 
 		private final Class<? extends EntityManagerFactory> emfType;
 
-		public StubEntityManagerFactoryBean(Class<? extends EntityManagerFactory> emfType) {
+		StubEntityManagerFactoryBean(Class<? extends EntityManagerFactory> emfType) {
 			this.emfType = emfType;
 		}
 

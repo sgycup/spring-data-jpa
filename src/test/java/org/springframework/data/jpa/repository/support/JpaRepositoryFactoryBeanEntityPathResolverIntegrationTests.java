@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.jpa.repository.support;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -40,7 +40,7 @@ import com.querydsl.core.types.EntityPath;
  * @author Jens Schauder
  * @author Oliver Gierke
  */
-public class JpaRepositoryFactoryBeanEntityPathResolverIntegrationTests {
+class JpaRepositoryFactoryBeanEntityPathResolverIntegrationTests {
 
 	@Configuration
 	@ImportResource("classpath:infrastructure.xml")
@@ -76,17 +76,17 @@ public class JpaRepositoryFactoryBeanEntityPathResolverIntegrationTests {
 	}
 
 	@Test // DATAJPA-1234, DATAJPA-1394
-	public void usesSimpleEntityPathResolverByDefault() {
+	void usesSimpleEntityPathResolverByDefault() {
 		assertEntityPathResolver(SimpleEntityPathResolver.INSTANCE, BaseConfig.class);
 	}
 
 	@Test // DATAJPA-1234, DATAJPA-1394
-	public void usesExplicitlyRegisteredEntityPathResolver() {
+	void usesExplicitlyRegisteredEntityPathResolver() {
 		assertEntityPathResolver(BaseConfig.RESOLVER, BaseConfig.class, FirstEntityPathResolver.class);
 	}
 
 	@Test // DATAJPA-1234, DATAJPA-1394
-	public void rejectsMulitpleEntityPathResolvers() {
+	void rejectsMulitpleEntityPathResolvers() {
 
 		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.Role;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.provider.HibernateUtils;
@@ -35,7 +36,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.AbstractRepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for {@link JpaCountQueryCreator}.
@@ -43,14 +44,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:infrastructure.xml")
 public class JpaCountQueryCreatorIntegrationTests {
 
 	@PersistenceContext EntityManager entityManager;
 
 	@Test // DATAJPA-1044
-	public void distinctFlagOnCountQueryIssuesCountDistinct() throws Exception {
+	void distinctFlagOnCountQueryIssuesCountDistinct() throws Exception {
 
 		Method method = SomeRepository.class.getMethod("findDistinctByRolesIn", List.class);
 

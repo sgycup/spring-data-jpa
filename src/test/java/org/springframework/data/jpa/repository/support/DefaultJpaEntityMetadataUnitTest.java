@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import javax.persistence.Entity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.data.jpa.repository.query.DefaultJpaEntityMetadata;
 
@@ -35,35 +35,35 @@ import org.springframework.data.jpa.repository.query.DefaultJpaEntityMetadata;
  */
 public class DefaultJpaEntityMetadataUnitTest {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void rejectsNullDomainType() {
-		new DefaultJpaEntityMetadata(null);
+	void rejectsNullDomainType() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultJpaEntityMetadata(null));
 	}
 
 	@Test
-	public void returnsConfiguredType() {
+	void returnsConfiguredType() {
 
 		DefaultJpaEntityMetadata<Foo> metadata = new DefaultJpaEntityMetadata<Foo>(Foo.class);
 		assertThat(metadata.getJavaType()).isEqualTo(Foo.class);
 	}
 
 	@Test
-	public void returnsSimpleClassNameAsEntityNameByDefault() {
+	void returnsSimpleClassNameAsEntityNameByDefault() {
 
 		DefaultJpaEntityMetadata<Foo> metadata = new DefaultJpaEntityMetadata<Foo>(Foo.class);
 		assertThat(metadata.getEntityName()).isEqualTo(Foo.class.getSimpleName());
 	}
 
 	@Test
-	public void returnsCustomizedEntityNameIfConfigured() {
+	void returnsCustomizedEntityNameIfConfigured() {
 
 		DefaultJpaEntityMetadata<Bar> metadata = new DefaultJpaEntityMetadata<Bar>(Bar.class);
 		assertThat(metadata.getEntityName()).isEqualTo("Entity");
 	}
 
 	@Test // DATAJPA-871
-	public void returnsCustomizedEntityNameIfConfiguredViaComposedAnnotation() {
+	void returnsCustomizedEntityNameIfConfiguredViaComposedAnnotation() {
 
 		DefaultJpaEntityMetadata<BarWithComposedAnnotation> metadata = new DefaultJpaEntityMetadata<BarWithComposedAnnotation>(
 				BarWithComposedAnnotation.class);
@@ -78,11 +78,11 @@ public class DefaultJpaEntityMetadataUnitTest {
 		String entityName();
 	}
 
-	static class Foo {}
+	private static class Foo {}
 
 	@Entity(name = "Entity")
 	static class Bar {}
 
 	@CustomEntityAnnotationUsingAliasFor(entityName = "Entity")
-	static class BarWithComposedAnnotation {}
+	private static class BarWithComposedAnnotation {}
 }

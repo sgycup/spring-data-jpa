@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@ import static org.assertj.core.api.Assertions.*;
 
 import javax.persistence.TransactionRequiredException;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.data.jpa.repository.support.TransactionalRepositoryTests.DelegatingTransactionManager;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for disabling default transactions using JavaConfig.
@@ -38,16 +37,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Jens Schauder
  * @soundtrack The Intersphere - Live in Mannheim
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public abstract class DefaultTransactionDisablingIntegrationTests {
-
-	public @Rule ExpectedException exception = ExpectedException.none();
 
 	@Autowired UserRepository repository;
 	@Autowired DelegatingTransactionManager txManager;
 
 	@Test // DATAJPA-685
-	public void considersExplicitConfigurationOnRepositoryInterface() {
+	void considersExplicitConfigurationOnRepositoryInterface() {
 
 		repository.findById(1);
 
@@ -55,7 +52,7 @@ public abstract class DefaultTransactionDisablingIntegrationTests {
 	}
 
 	@Test // DATAJPA-685
-	public void doesNotUseDefaultTransactionsOnNonRedeclaredMethod() {
+	void doesNotUseDefaultTransactionsOnNonRedeclaredMethod() {
 
 		repository.findAll(PageRequest.of(0, 10));
 
@@ -63,7 +60,7 @@ public abstract class DefaultTransactionDisablingIntegrationTests {
 	}
 
 	@Test // DATAJPA-685
-	public void persistingAnEntityShouldThrowExceptionDueToMissingTransaction() {
+	void persistingAnEntityShouldThrowExceptionDueToMissingTransaction() {
 
 		assertThatThrownBy(() -> repository.saveAndFlush(new User())) //
 				.isInstanceOf(InvalidDataAccessApiUsageException.class) //

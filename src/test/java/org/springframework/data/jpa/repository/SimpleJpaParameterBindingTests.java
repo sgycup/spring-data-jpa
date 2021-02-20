@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,31 +29,32 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:application-context.xml"
 		// , "classpath:eclipselink.xml"
 		// , "classpath:openjpa.xml"
 })
 @Transactional
-public class SimpleJpaParameterBindingTests {
+class SimpleJpaParameterBindingTests {
 
 	@PersistenceContext EntityManager em;
 
 	@Test
-	@Ignore
-	public void bindArray() {
+	@Disabled
+	void bindArray() {
 
 		User user = new User("Dave", "Matthews", "foo@bar.de");
 		em.persist(user);
@@ -75,7 +76,7 @@ public class SimpleJpaParameterBindingTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void bindCollection() {
+	void bindCollection() {
 
 		User user = new User("Dave", "Matthews", "foo@bar.de");
 		em.persist(user);

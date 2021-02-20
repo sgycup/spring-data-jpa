@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +42,7 @@ import org.springframework.data.jpa.domain.sample.QMailSender;
 import org.springframework.data.jpa.repository.sample.MailMessageRepository;
 import org.springframework.data.jpa.repository.sample.SampleConfig;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -51,12 +52,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SampleConfig.class)
 @Transactional
 public class MailMessageRepositoryIntegrationTests {
 
-	static final QMailMessage message = QMailMessage.mailMessage;
+	private static final QMailMessage message = QMailMessage.mailMessage;
 	static final QMailSender sender = QMailSender.mailSender;
 
 	@PersistenceContext EntityManager em;
@@ -64,7 +65,7 @@ public class MailMessageRepositoryIntegrationTests {
 	@Autowired MailMessageRepository mailMessageRepository;
 
 	@Test // DATAJPA-12
-	public void shouldSortMailWithPageRequestAndJpaSortCriteriaNullsFirst() {
+	void shouldSortMailWithPageRequestAndJpaSortCriteriaNullsFirst() {
 
 		MailMessage message1 = new MailMessage();
 		message1.setContent("abc");
@@ -87,7 +88,7 @@ public class MailMessageRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-12
-	public void shouldSortMailWithQueryDslRepositoryAndDslSortCriteriaNullsFirst() {
+	void shouldSortMailWithQueryDslRepositoryAndDslSortCriteriaNullsFirst() {
 
 		MailMessage message1 = new MailMessage();
 		message1.setContent("abc");
@@ -109,7 +110,7 @@ public class MailMessageRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-491
-	public void shouldSortMailWithNestedQueryDslSortCriteriaNullsFirst() {
+	void shouldSortMailWithNestedQueryDslSortCriteriaNullsFirst() {
 
 		MailUser fooMailUser = new MailUser("foo");
 		em.persist(fooMailUser);
@@ -135,7 +136,7 @@ public class MailMessageRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-491
-	public void shouldSortMailWithNestedStringBasedSortCriteriaNullsFirst() {
+	void shouldSortMailWithNestedStringBasedSortCriteriaNullsFirst() {
 
 		MailUser fooMailUser = new MailUser("foo");
 		em.persist(fooMailUser);

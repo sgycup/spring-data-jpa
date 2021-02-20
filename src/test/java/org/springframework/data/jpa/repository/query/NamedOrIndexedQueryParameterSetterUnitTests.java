@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.criteria.ParameterExpression;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.query.QueryParameterSetter.NamedOrIndexedQueryParameterSetter;
 
 /**
@@ -46,23 +46,23 @@ import org.springframework.data.jpa.repository.query.QueryParameterSetter.NamedO
  * @author Oliver Gierke
  * @author Mark Paluch
  */
-public class NamedOrIndexedQueryParameterSetterUnitTests {
+class NamedOrIndexedQueryParameterSetterUnitTests {
 
-	static final String EXCEPTION_MESSAGE = "mock exception";
-	Function<JpaParametersParameterAccessor, Object> firstValueExtractor = args -> args.getValues()[0];
-	JpaParametersParameterAccessor methodArguments;
+	private static final String EXCEPTION_MESSAGE = "mock exception";
+	private Function<JpaParametersParameterAccessor, Object> firstValueExtractor = args -> args.getValues()[0];
+	private JpaParametersParameterAccessor methodArguments;
 
-	List<TemporalType> temporalTypes = asList(null, TIME);
-	List<Parameter<?>> parameters = Arrays.<Parameter<?>> asList( //
+	private List<TemporalType> temporalTypes = asList(null, TIME);
+	private List<Parameter<?>> parameters = Arrays.<Parameter<?>> asList( //
 			mock(ParameterExpression.class), //
 			new ParameterImpl("name", null), //
 			new ParameterImpl(null, 1) //
 	);
 
-	SoftAssertions softly = new SoftAssertions();
+	private SoftAssertions softly = new SoftAssertions();
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 
 		JpaParametersParameterAccessor accessor = mock(JpaParametersParameterAccessor.class);
 		when(accessor.getValues()).thenReturn(new Object[] { new Date() });
@@ -71,7 +71,7 @@ public class NamedOrIndexedQueryParameterSetterUnitTests {
 	}
 
 	@Test // DATAJPA-1233
-	public void strictErrorHandlingThrowsExceptionForAllVariationsOfParameters() {
+	void strictErrorHandlingThrowsExceptionForAllVariationsOfParameters() {
 
 		Query query = mockExceptionThrowingQueryWithNamedParameters();
 
@@ -100,7 +100,7 @@ public class NamedOrIndexedQueryParameterSetterUnitTests {
 	}
 
 	@Test // DATAJPA-1233
-	public void lenientErrorHandlingThrowsNoExceptionForAllVariationsOfParameters() {
+	void lenientErrorHandlingThrowsNoExceptionForAllVariationsOfParameters() {
 
 		Query query = mockExceptionThrowingQueryWithNamedParameters();
 
@@ -134,7 +134,7 @@ public class NamedOrIndexedQueryParameterSetterUnitTests {
 	 * happens when a parameter gets used in the ORDER BY clause which gets stripped of for the count query.
 	 */
 	@Test // DATAJPA-1233
-	public void lenientSetsParameterWhenSuccessIsUnsure() {
+	void lenientSetsParameterWhenSuccessIsUnsure() {
 
 		Query query = mock(Query.class);
 
@@ -164,7 +164,7 @@ public class NamedOrIndexedQueryParameterSetterUnitTests {
 	 * count query. Then the count query has no named parameter but the parameter provided has a {@literal null} position.
 	 */
 	@Test // DATAJPA-1233
-	public void parameterNotSetWhenSuccessImpossible() {
+	void parameterNotSetWhenSuccessImpossible() {
 
 		Query query = mock(Query.class);
 

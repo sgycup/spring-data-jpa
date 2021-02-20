@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,43 @@
  */
 package org.springframework.data.jpa.repository.support;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.util.Assert;
+
 /**
- * QueryHints provides access to query hints defined via {@link CrudMethodMetadata#getQueryHints()} by default excluding
- * JPA {@link javax.persistence.EntityGraph}.
+ * QueryHints provides access to query hints defined via {@link CrudMethodMetadata#getQueryHints()} QueryHintList()} by
+ * default excluding JPA {@link javax.persistence.EntityGraph}. The object allows to switch between query hints for
+ * count queries with or without fetch graph hints.
  *
  * @author Christoph Strobl
  * @author Oliver Gierke
  * @author Jens Schauder
  * @since 2.0
  */
-interface QueryHints extends Iterable<Entry<String, Object>> {
+public interface QueryHints {
+
+	/**
+	 * Create a new {@link QueryHints} object from the given {@code sources}.
+	 *
+	 * @param sources must not be {@literal null}.
+	 * @return a merged representation of {@link QueryHints QueryHints}.
+	 * @since 2.4
+	 */
+	static QueryHints from(QueryHints... sources) {
+
+		Assert.notNull(sources, "Sources must not be null!");
+
+		MutableQueryHints result = new MutableQueryHints();
+
+		for (QueryHints queryHints : sources) {
+			queryHints.forEach(result.getValues()::add);
+		}
+
+		return result;
+	}
 
 	/**
 	 * Creates and returns a new {@link QueryHints} instance including {@link javax.persistence.EntityGraph}.
@@ -51,11 +71,16 @@ interface QueryHints extends Iterable<Entry<String, Object>> {
 	QueryHints forCounts();
 
 	/**
-	 * Get the query hints as a {@link Map}.
+	 * Performs the given action for each element of this query hints object until all hints have been processed or the
+	 * action throws an exception. Actions are performed in the order of iteration, if that order is specified. Exceptions
+	 * thrown by the action are relayed to the caller.
+	 * <p>
+	 * Passes each query hint to the consumer. Query hint keys might appear more than once.
 	 *
-	 * @return never {@literal null}.
+	 * @param action to process query hints consisting of a key and a value.
+	 * @since 2.4
 	 */
-	Map<String, Object> asMap();
+	void forEach(BiConsumer<String, Object> action);
 
 	/**
 	 * Null object implementation of {@link QueryHints}.
@@ -63,27 +88,9 @@ interface QueryHints extends Iterable<Entry<String, Object>> {
 	 * @author Oliver Gierke
 	 * @since 2.0
 	 */
-	static enum NoHints implements QueryHints {
+	enum NoHints implements QueryHints {
 
 		INSTANCE;
-
-		/*
-		 * (non-Javadoc)
-		 * @see org.springframework.data.jpa.repository.support.QueryHints#asMap()
-		 */
-		@Override
-		public Map<String, Object> asMap() {
-			return Collections.emptyMap();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see java.lang.Iterable#iterator()
-		 */
-		@Override
-		public Iterator<Entry<String, Object>> iterator() {
-			return Collections.emptyIterator();
-		}
 
 		/*
 		 * (non-Javadoc)
@@ -102,5 +109,12 @@ interface QueryHints extends Iterable<Entry<String, Object>> {
 		public QueryHints forCounts() {
 			return this;
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.springframework.data.jpa.repository.support.QueryHints#forEach(java.util.function.BiConsumer)
+		 */
+		@Override
+		public void forEach(BiConsumer<String, Object> action) {}
 	}
 }

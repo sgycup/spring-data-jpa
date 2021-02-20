@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.AttributeNode;
 import javax.persistence.EntityGraph;
@@ -27,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Subgraph;
 
+import org.springframework.data.jpa.repository.support.MutableQueryHints;
+import org.springframework.data.jpa.repository.support.QueryHints;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -41,6 +42,7 @@ import org.springframework.util.StringUtils;
  * @author Oliver Gierke
  * @author Christoph Strobl
  * @author Mark Paluch
+ * @author Jens Schauder
  * @since 1.6
  */
 public class Jpa21Utils {
@@ -62,29 +64,23 @@ public class Jpa21Utils {
 		// prevent instantiation
 	}
 
-	/**
-	 * Returns a {@link Map} with hints for a JPA 2.1 fetch-graph or load-graph if running under JPA 2.1.
-	 *
-	 * @param em must not be {@literal null}.
-	 * @param entityGraph can be {@literal null}.
-	 * @param entityType must not be {@literal null}.
-	 * @return a {@code Map} with the hints or an empty {@code Map} if no hints were found.
-	 * @since 1.8
-	 */
-	public static Map<String, Object> tryGetFetchGraphHints(EntityManager em, @Nullable JpaEntityGraph entityGraph,
+	public static QueryHints getFetchGraphHint(EntityManager em, @Nullable JpaEntityGraph entityGraph,
 			Class<?> entityType) {
 
+		MutableQueryHints result = new MutableQueryHints();
+
 		if (entityGraph == null) {
-			return Collections.emptyMap();
+			return result;
 		}
 
 		EntityGraph<?> graph = tryGetFetchGraph(em, entityGraph, entityType);
 
 		if (graph == null) {
-			return Collections.emptyMap();
+			return result;
 		}
 
-		return Collections.<String, Object> singletonMap(entityGraph.getType().getKey(), graph);
+		result.add(entityGraph.getType().getKey(), graph);
+		return result;
 	}
 
 	/**

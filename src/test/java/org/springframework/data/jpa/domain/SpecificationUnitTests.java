@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.data.jpa.domain;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.data.jpa.domain.Specification.*;
 import static org.springframework.data.jpa.domain.Specification.not;
 import static org.springframework.util.SerializationUtils.*;
@@ -27,11 +28,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * Unit tests for {@link Specification}.
@@ -40,26 +43,28 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Thomas Darimont
  * @author Sebastian Staudt
  * @author Jens Schauder
+ * @author Mark Paluch
  */
 @SuppressWarnings("serial")
-@RunWith(MockitoJUnitRunner.class)
-public class SpecificationUnitTests implements Serializable {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SpecificationUnitTests implements Serializable {
 
-	Specification<Object> spec;
-	@Mock(extraInterfaces = Serializable.class) Root<Object> root;
-	@Mock(extraInterfaces = Serializable.class) CriteriaQuery<?> query;
-	@Mock(extraInterfaces = Serializable.class) CriteriaBuilder builder;
+	private Specification<Object> spec;
+	@Mock(serializable = true) Root<Object> root;
+	@Mock(serializable = true) CriteriaQuery<?> query;
+	@Mock(serializable = true) CriteriaBuilder builder;
 
-	@Mock(extraInterfaces = Serializable.class) Predicate predicate;
+	@Mock(serializable = true) Predicate predicate;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		spec = (root, query, cb) -> predicate;
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void createsSpecificationsFromNull() {
+	void createsSpecificationsFromNull() {
 
 		Specification<Object> specification = where(null);
 		assertThat(specification).isNotNull();
@@ -67,7 +72,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void negatesNullSpecToNull() {
+	void negatesNullSpecToNull() {
 
 		Specification<Object> specification = not(null);
 
@@ -76,7 +81,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void andConcatenatesSpecToNullSpec() {
+	void andConcatenatesSpecToNullSpec() {
 
 		Specification<Object> specification = where(null);
 		specification = specification.and(spec);
@@ -86,7 +91,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void andConcatenatesNullSpecToSpec() {
+	void andConcatenatesNullSpecToSpec() {
 
 		Specification<Object> specification = spec.and(null);
 
@@ -95,7 +100,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void orConcatenatesSpecToNullSpec() {
+	void orConcatenatesSpecToNullSpec() {
 
 		Specification<Object> specification = where(null);
 		specification = specification.or(spec);
@@ -105,7 +110,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-300, DATAJPA-1170
-	public void orConcatenatesNullSpecToSpec() {
+	void orConcatenatesNullSpecToSpec() {
 
 		Specification<Object> specification = spec.or(null);
 
@@ -114,7 +119,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-523
-	public void specificationsShouldBeSerializable() {
+	void specificationsShouldBeSerializable() {
 
 		Specification<Object> serializableSpec = new SerializableSpecification();
 		Specification<Object> specification = serializableSpec.and(serializableSpec);
@@ -128,7 +133,7 @@ public class SpecificationUnitTests implements Serializable {
 	}
 
 	@Test // DATAJPA-523
-	public void complexSpecificationsShouldBeSerializable() {
+	void complexSpecificationsShouldBeSerializable() {
 
 		SerializableSpecification serializableSpec = new SerializableSpecification();
 		Specification<Object> specification = Specification
@@ -142,7 +147,37 @@ public class SpecificationUnitTests implements Serializable {
 		assertThat(transferredSpecification).isNotNull();
 	}
 
-	public class SerializableSpecification implements Serializable, Specification<Object> {
+	@Test // #2146
+	void andCombinesSpecificationsInOrder() {
+
+		Predicate firstPredicate = mock(Predicate.class);
+		Predicate secondPredicate = mock(Predicate.class);
+
+		Specification<Object> first = ((root1, query1, criteriaBuilder) -> firstPredicate);
+
+		Specification<Object> second = ((root1, query1, criteriaBuilder) -> secondPredicate);
+
+		first.and(second).toPredicate(root, query, builder);
+
+		verify(builder).and(firstPredicate, secondPredicate);
+	}
+
+	@Test // #2146
+	void orCombinesSpecificationsInOrder() {
+
+		Predicate firstPredicate = mock(Predicate.class);
+		Predicate secondPredicate = mock(Predicate.class);
+
+		Specification<Object> first = ((root1, query1, criteriaBuilder) -> firstPredicate);
+
+		Specification<Object> second = ((root1, query1, criteriaBuilder) -> secondPredicate);
+
+		first.or(second).toPredicate(root, query, builder);
+
+		verify(builder).or(firstPredicate, secondPredicate);
+	}
+
+	static class SerializableSpecification implements Serializable, Specification<Object> {
 
 		@Override
 		public Predicate toPredicate(Root<Object> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

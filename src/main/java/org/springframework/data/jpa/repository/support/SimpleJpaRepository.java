@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import static org.springframework.data.jpa.repository.query.QueryUtils.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -54,6 +54,7 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.QueryHints.NoHints;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.data.util.ProxyUtils;
+import org.springframework.data.util.Streamable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,19 +88,6 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 
 	private @Nullable CrudMethodMetadata metadata;
 	private EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
-
-	private static <T> Collection<T> toCollection(Iterable<T> ts) {
-
-		if (ts instanceof Collection) {
-			return (Collection<T>) ts;
-		}
-
-		List<T> tCollection = new ArrayList<T>();
-		for (T t : ts) {
-			tCollection.add(t);
-		}
-		return tCollection;
-	}
 
 	/**
 	 * Creates a new {@link SimpleJpaRepository} to manage objects of the given {@link JpaEntityInformation}.
@@ -205,10 +193,48 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.CrudRepository#deleteAllById(java.lang.Iterable)
+	 */
+	@Override
+	@Transactional
+	public void deleteAllById(Iterable<? extends ID> ids) {
+
+		Assert.notNull(ids, "Ids must not be null!");
+
+		for (ID id : ids) {
+			deleteById(id);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.CrudRepository#deleteAllByIdInBatch(java.lang.Iterable)
+	 */
+	@Override
+	@Transactional
+	public void deleteAllByIdInBatch(Iterable<ID> ids) {
+
+		Assert.notNull(ids, "Ids must not be null!");
+
+		if (!ids.iterator().hasNext()) {
+			return;
+		}
+
+		String queryString = String.format(DELETE_ALL_QUERY_BY_ID_STRING, entityInformation.getEntityName(),
+				entityInformation.getIdAttribute().getName());
+
+		Query query = em.createQuery(queryString);
+		query.setParameter("ids", ids);
+
+		query.executeUpdate();
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.CrudRepository#delete(java.lang.Iterable)
 	 */
-	@Transactional
 	@Override
+	@Transactional
 	public void deleteAll(Iterable<? extends T> entities) {
 
 		Assert.notNull(entities, "Entities must not be null!");
@@ -222,9 +248,9 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	 * (non-Javadoc)
 	 * @see org.springframework.data.jpa.repository.JpaRepository#deleteInBatch(java.lang.Iterable)
 	 */
-	@Transactional
 	@Override
-	public void deleteInBatch(Iterable<T> entities) {
+	@Transactional
+	public void deleteAllInBatch(Iterable<T> entities) {
 
 		Assert.notNull(entities, "Entities must not be null!");
 
@@ -240,8 +266,8 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.Repository#deleteAll()
 	 */
-	@Transactional
 	@Override
+	@Transactional
 	public void deleteAll() {
 
 		for (T element : findAll()) {
@@ -253,8 +279,8 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	 * (non-Javadoc)
 	 * @see org.springframework.data.jpa.repository.JpaRepository#deleteAllInBatch()
 	 */
-	@Transactional
 	@Override
+	@Transactional
 	public void deleteAllInBatch() {
 		em.createQuery(getDeleteAllQueryString()).executeUpdate();
 	}
@@ -276,7 +302,8 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 
 		LockModeType type = metadata.getLockModeType();
 
-		Map<String, Object> hints = getQueryHints().withFetchGraphs(em).asMap();
+		Map<String, Object> hints = new HashMap<>();
+		getQueryHints().withFetchGraphs(em).forEach(hints::put);
 
 		return Optional.ofNullable(type == null ? em.find(domainType, id, hints) : em.find(domainType, id, type, hints));
 	}
@@ -379,7 +406,7 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 			return results;
 		}
 
-		Collection<ID> idCollection = toCollection(ids);
+		Collection<ID> idCollection = Streamable.of(ids).toList();
 
 		ByIdsSpecification<T> specification = new ByIdsSpecification<T>(entityInformation);
 		TypedQuery<T> query = getQuery(specification, Sort.unsorted());
@@ -549,6 +576,8 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	@Transactional
 	@Override
 	public <S extends T> S save(S entity) {
+
+		Assert.notNull(entity, "Entity must not be null.");
 
 		if (entityInformation.isNew(entity)) {
 			em.persist(entity);
@@ -783,10 +812,7 @@ public class SimpleJpaRepository<T, ID> implements JpaRepositoryImplementation<T
 	}
 
 	private void applyQueryHints(Query query) {
-
-		for (Entry<String, Object> hint : getQueryHints().withFetchGraphs(em)) {
-			query.setHint(hint.getKey(), hint.getValue());
-		}
+		getQueryHints().withFetchGraphs(em).forEach(query::setHint);
 	}
 
 	/**

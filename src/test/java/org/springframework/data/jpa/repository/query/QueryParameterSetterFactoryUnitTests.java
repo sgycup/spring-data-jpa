@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import org.springframework.data.jpa.repository.query.JpaParameters.JpaParameter;
@@ -35,15 +35,15 @@ import org.springframework.data.jpa.repository.query.StringQuery.ParameterBindin
  * @author Jens Schauder
  * @author Mark Paluch
  */
-public class QueryParameterSetterFactoryUnitTests {
+class QueryParameterSetterFactoryUnitTests {
 
-	JpaParameters parameters = mock(JpaParameters.class, Mockito.RETURNS_DEEP_STUBS);
-	ParameterBinding binding = mock(ParameterBinding.class);
+	private JpaParameters parameters = mock(JpaParameters.class, Mockito.RETURNS_DEEP_STUBS);
+	private ParameterBinding binding = mock(ParameterBinding.class);
 
-	QueryParameterSetterFactory setterFactory;
+	private QueryParameterSetterFactory setterFactory;
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 
 		// we have one bindable parameter
 		when(parameters.getBindableParameters().iterator()).thenReturn(Stream.of(mock(JpaParameter.class)).iterator());
@@ -52,12 +52,12 @@ public class QueryParameterSetterFactoryUnitTests {
 	}
 
 	@Test // DATAJPA-1058
-	public void noExceptionWhenQueryDoesNotContainNamedParameters() {
+	void noExceptionWhenQueryDoesNotContainNamedParameters() {
 		setterFactory.create(binding, DeclaredQuery.of("QueryStringWithOutNamedParameter"));
 	}
 
 	@Test // DATAJPA-1058
-	public void exceptionWhenQueryContainNamedParametersAndMethodParametersAreNotNamed() {
+	void exceptionWhenQueryContainNamedParametersAndMethodParametersAreNotNamed() {
 
 		assertThatExceptionOfType(IllegalStateException.class) //
 				.isThrownBy(() -> setterFactory.create(binding, DeclaredQuery.of("QueryStringWith :NamedParameter"))) //
@@ -67,7 +67,7 @@ public class QueryParameterSetterFactoryUnitTests {
 	}
 
 	@Test // DATAJPA-1281
-	public void exceptionWhenCriteriaQueryContainsInsufficientAmountOfParameters() {
+	void exceptionWhenCriteriaQueryContainsInsufficientAmountOfParameters() {
 
 		// no parameter present in the criteria query
 		List<ParameterMetadataProvider.ParameterMetadata<?>> metadata = Collections.emptyList();
@@ -82,7 +82,7 @@ public class QueryParameterSetterFactoryUnitTests {
 	}
 
 	@Test // DATAJPA-1281
-	public void exceptionWhenBasicQueryContainsInsufficientAmountOfParameters() {
+	void exceptionWhenBasicQueryContainsInsufficientAmountOfParameters() {
 
 		// no parameter present in the criteria query
 		QueryParameterSetterFactory setterFactory = QueryParameterSetterFactory.basic(parameters);

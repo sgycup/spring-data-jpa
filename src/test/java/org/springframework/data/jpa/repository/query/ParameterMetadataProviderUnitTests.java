@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Collections;
 
 import javax.persistence.criteria.CriteriaBuilder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.parser.Part;
 
@@ -31,10 +31,10 @@ import org.springframework.data.repository.query.parser.Part;
  *
  * @author Jens Schauder
  */
-public class ParameterMetadataProviderUnitTests {
+class ParameterMetadataProviderUnitTests {
 
 	@Test // DATAJPA-863
-	public void errorMessageMentionesParametersWhenParametersAreExhausted() {
+	void errorMessageMentionesParametersWhenParametersAreExhausted() {
 
 		CriteriaBuilder builder = mock(CriteriaBuilder.class);
 

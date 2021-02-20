@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@ package org.springframework.data.jpa.repository.support;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
@@ -36,54 +38,55 @@ import org.springframework.transaction.TransactionStatus;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration({ "classpath:config/namespace-autoconfig-context.xml", "classpath:tx-manager.xml" })
-public class TransactionalRepositoryTests extends AbstractJUnit4SpringContextTests {
+public class TransactionalRepositoryTests {
 
 	@Autowired UserRepository repository;
 	@Autowired DelegatingTransactionManager transactionManager;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		transactionManager.resetCount();
 	}
 
-	@After
-	public void tearDown() {
+	@AfterEach
+	void tearDown() {
 
 		repository.deleteAll();
 	}
 
 	@Test
-	public void simpleManipulatingOperation() throws Exception {
+	void simpleManipulatingOperation() throws Exception {
 
 		repository.saveAndFlush(new User("foo", "bar", "foo@bar.de"));
 		assertThat(transactionManager.getTransactionRequests()).isEqualTo(1);
 	}
 
 	@Test
-	public void unannotatedFinder() throws Exception {
+	void unannotatedFinder() throws Exception {
 
 		repository.findByEmailAddress("foo@bar.de");
 		assertThat(transactionManager.getTransactionRequests()).isEqualTo(0);
 	}
 
 	@Test
-	public void invokeTransactionalFinder() throws Exception {
+	void invokeTransactionalFinder() throws Exception {
 
 		repository.findByAnnotatedQuery("foo@bar.de");
 		assertThat(transactionManager.getTransactionRequests()).isEqualTo(1);
 	}
 
 	@Test
-	public void invokeRedeclaredMethod() throws Exception {
+	void invokeRedeclaredMethod() throws Exception {
 
 		repository.findById(1);
 		assertThat(transactionManager.getDefinition().isReadOnly()).isFalse();
 	}
 
 	@Test // DATACMNS-649
-	public void invokeRedeclaredDeleteMethodWithoutTransactionDeclaration() throws Exception {
+	void invokeRedeclaredDeleteMethodWithoutTransactionDeclaration() throws Exception {
 
 		User user = repository.saveAndFlush(new User("foo", "bar", "foo@bar.de"));
 		repository.deleteById(user.getId());
@@ -117,7 +120,7 @@ public class TransactionalRepositoryTests extends AbstractJUnit4SpringContextTes
 			return txManager.getTransaction(definition);
 		}
 
-		public int getTransactionRequests() {
+		int getTransactionRequests() {
 
 			return transactionRequests;
 		}

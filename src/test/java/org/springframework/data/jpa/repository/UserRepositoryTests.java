@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.jpa.repository;
 
+import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.domain.Example.*;
 import static org.springframework.data.domain.ExampleMatcher.*;
@@ -24,7 +25,6 @@ import static org.springframework.data.jpa.domain.Specification.not;
 import static org.springframework.data.jpa.domain.sample.UserSpecifications.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,10 +42,11 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -71,7 +72,7 @@ import org.springframework.data.jpa.repository.sample.SampleEvaluationContextExt
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.data.jpa.repository.sample.UserRepository.NameOnly;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
@@ -91,7 +92,7 @@ import com.google.common.base.Optional;
  * @author Jens Schauder
  * @author Andrey Kovalev
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:application-context.xml")
 @Transactional
 public class UserRepositoryTests {
@@ -102,12 +103,15 @@ public class UserRepositoryTests {
 	@Autowired UserRepository repository;
 
 	// Test fixture
-	User firstUser, secondUser, thirdUser, fourthUser;
-	Integer id;
-	Role adminRole;
+	private User firstUser;
+	private User secondUser;
+	private User thirdUser;
+	private User fourthUser;
+	private Integer id;
+	private Role adminRole;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 
 		firstUser = new User("Oliver", "Gierke", "gierke@synyx.de");
 		firstUser.setAge(28);
@@ -124,7 +128,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testCreation() {
+	void testCreation() {
 
 		Query countQuery = em.createQuery("select count(u) from User u");
 		Long before = (Long) countQuery.getSingleResult();
@@ -135,7 +139,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testRead() throws Exception {
+	void testRead() throws Exception {
 
 		flushTestUsers();
 
@@ -143,16 +147,16 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void findsAllByGivenIds() {
+	void findsAllByGivenIds() {
 
 		flushTestUsers();
 
-		assertThat(repository.findAllById(Arrays.asList(firstUser.getId(), secondUser.getId()))).contains(firstUser,
+		assertThat(repository.findAllById(asList(firstUser.getId(), secondUser.getId()))).contains(firstUser,
 				secondUser);
 	}
 
 	@Test
-	public void testReadByIdReturnsNullForNotFoundEntities() {
+	void testReadByIdReturnsNullForNotFoundEntities() {
 
 		flushTestUsers();
 
@@ -160,19 +164,19 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void savesCollectionCorrectly() throws Exception {
+	void savesCollectionCorrectly() throws Exception {
 
-		assertThat(repository.saveAll(Arrays.asList(firstUser, secondUser, thirdUser))).hasSize(3).contains(firstUser,
+		assertThat(repository.saveAll(asList(firstUser, secondUser, thirdUser))).hasSize(3).contains(firstUser,
 				secondUser, thirdUser);
 	}
 
 	@Test
-	public void savingEmptyCollectionIsNoOp() throws Exception {
+	void savingEmptyCollectionIsNoOp() throws Exception {
 		assertThat(repository.saveAll(new ArrayList<>())).isEmpty();
 	}
 
 	@Test
-	public void testUpdate() {
+	void testUpdate() {
 
 		flushTestUsers();
 
@@ -183,7 +187,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void existReturnsWhetherAnEntityCanBeLoaded() throws Exception {
+	void existReturnsWhetherAnEntityCanBeLoaded() throws Exception {
 
 		flushTestUsers();
 		assertThat(repository.existsById(id)).isTrue();
@@ -191,7 +195,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void deletesAUserById() {
+	void deletesAUserById() {
 
 		flushTestUsers();
 
@@ -202,7 +206,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testDelete() {
+	void testDelete() {
 
 		flushTestUsers();
 
@@ -213,7 +217,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void returnsAllSortedCorrectly() throws Exception {
+	void returnsAllSortedCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -222,7 +226,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-296
-	public void returnsAllIgnoreCaseSortedCorrectly() throws Exception {
+	void returnsAllIgnoreCaseSortedCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -234,13 +238,13 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void deleteColletionOfEntities() {
+	void deleteCollectionOfEntities() {
 
 		flushTestUsers();
 
 		long before = repository.count();
 
-		repository.deleteAll(Arrays.asList(firstUser, secondUser));
+		repository.deleteAll(asList(firstUser, secondUser));
 
 		assertThat(repository.existsById(firstUser.getId())).isFalse();
 		assertThat(repository.existsById(secondUser.getId())).isFalse();
@@ -248,13 +252,27 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void batchDeleteColletionOfEntities() {
+	void batchDeleteCollectionOfEntities() {
 
 		flushTestUsers();
 
 		long before = repository.count();
 
-		repository.deleteInBatch(Arrays.asList(firstUser, secondUser));
+		repository.deleteAllInBatch(asList(firstUser, secondUser));
+
+		assertThat(repository.existsById(firstUser.getId())).isFalse();
+		assertThat(repository.existsById(secondUser.getId())).isFalse();
+		assertThat(repository.count()).isEqualTo(before - 2);
+	}
+
+	@Test // DATAJPA-1818
+	void deleteCollectionOfEntitiesById() {
+
+		flushTestUsers();
+
+		long before = repository.count();
+
+		repository.deleteAllById(asList(firstUser.getId(), secondUser.getId()));
 
 		assertThat(repository.existsById(firstUser.getId())).isFalse();
 		assertThat(repository.existsById(secondUser.getId())).isFalse();
@@ -262,13 +280,13 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void deleteEmptyCollectionDoesNotDeleteAnything() {
+	void deleteEmptyCollectionDoesNotDeleteAnything() {
 
 		assertDeleteCallDoesNotDeleteAnything(new ArrayList<User>());
 	}
 
 	@Test
-	public void executesManipulatingQuery() throws Exception {
+	void executesManipulatingQuery() throws Exception {
 
 		flushTestUsers();
 		repository.renameAllUsersTo("newLastname");
@@ -278,7 +296,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testFinderInvocationWithNullParameter() {
+	void testFinderInvocationWithNullParameter() {
 
 		flushTestUsers();
 
@@ -286,7 +304,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testFindByLastname() throws Exception {
+	void testFindByLastname() throws Exception {
 
 		flushTestUsers();
 
@@ -297,7 +315,7 @@ public class UserRepositoryTests {
 	 * Tests, that searching by the email address of the reference user returns exactly that instance.
 	 */
 	@Test
-	public void testFindByEmailAddress() throws Exception {
+	void testFindByEmailAddress() throws Exception {
 
 		flushTestUsers();
 
@@ -308,7 +326,7 @@ public class UserRepositoryTests {
 	 * Tests reading all users.
 	 */
 	@Test
-	public void testReadAll() {
+	void testReadAll() {
 
 		flushTestUsers();
 
@@ -320,7 +338,7 @@ public class UserRepositoryTests {
 	 * Tests that all users get deleted by triggering {@link UserRepository#deleteAll()}.
 	 */
 	@Test
-	public void deleteAll() throws Exception {
+	void deleteAll() throws Exception {
 
 		flushTestUsers();
 
@@ -330,7 +348,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-137
-	public void deleteAllInBatch() {
+	void deleteAllInBatch() {
 
 		flushTestUsers();
 
@@ -343,7 +361,7 @@ public class UserRepositoryTests {
 	 * Tests cascading persistence.
 	 */
 	@Test
-	public void testCascadesPersisting() {
+	void testCascadesPersisting() {
 
 		// Create link prior to persisting
 		firstUser.addColleague(secondUser);
@@ -363,19 +381,19 @@ public class UserRepositoryTests {
 	/**
 	 * Tests, that persisting a relationsship without cascade attributes throws a {@code DataAccessException}.
 	 */
-	@Test(expected = DataAccessException.class)
-	public void testPreventsCascadingRolePersisting() {
+	@Test
+	void testPreventsCascadingRolePersisting() {
 
 		firstUser.addRole(new Role("USER"));
 
-		flushTestUsers();
+		assertThatExceptionOfType(DataAccessException.class).isThrownBy(this::flushTestUsers);
 	}
 
 	/**
 	 * Tests cascading on {@literal merge} operation.
 	 */
 	@Test
-	public void testMergingCascadesCollegueas() {
+	void testMergingCascadesCollegueas() {
 
 		firstUser.addColleague(secondUser);
 		flushTestUsers();
@@ -390,7 +408,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testCountsCorrectly() {
+	void testCountsCorrectly() {
 
 		long count = repository.count();
 
@@ -402,60 +420,62 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void testInvocationOfCustomImplementation() {
+	void testInvocationOfCustomImplementation() {
 
 		repository.someCustomMethod(new User());
 	}
 
 	@Test
-	public void testOverwritingFinder() {
+	void testOverwritingFinder() {
 
 		repository.findByOverrridingMethod();
 	}
 
 	@Test
-	public void testUsesQueryAnnotation() {
+	void testUsesQueryAnnotation() {
 
 		assertThat(repository.findByAnnotatedQuery("gierke@synyx.de")).isNull();
 	}
 
 	@Test
-	public void testExecutionOfProjectingMethod() {
+	void testExecutionOfProjectingMethod() {
 
 		flushTestUsers();
 		assertThat(repository.countWithFirstname("Oliver")).isEqualTo(1L);
 	}
 
 	@Test
-	public void executesSpecificationCorrectly() {
+	void executesSpecificationCorrectly() {
 
 		flushTestUsers();
 		assertThat(repository.findAll(where(userHasFirstname("Oliver")))).hasSize(1);
 	}
 
 	@Test
-	public void executesSingleEntitySpecificationCorrectly() throws Exception {
+	void executesSingleEntitySpecificationCorrectly() throws Exception {
 
 		flushTestUsers();
 		assertThat(repository.findOne(userHasFirstname("Oliver"))).contains(firstUser);
 	}
 
 	@Test
-	public void returnsNullIfNoEntityFoundForSingleEntitySpecification() throws Exception {
+	void returnsNullIfNoEntityFoundForSingleEntitySpecification() throws Exception {
 
 		flushTestUsers();
 		assertThat(repository.findOne(userHasLastname("Beauford"))).isNotPresent();
 	}
 
-	@Test(expected = IncorrectResultSizeDataAccessException.class)
-	public void throwsExceptionForUnderSpecifiedSingleEntitySpecification() {
+	@Test
+	void throwsExceptionForUnderSpecifiedSingleEntitySpecification() {
 
 		flushTestUsers();
-		repository.findOne(userHasFirstnameLike("e"));
+
+		assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
+				.isThrownBy(() -> repository.findOne(userHasFirstnameLike("e")));
 	}
 
 	@Test
-	public void executesCombinedSpecificationsCorrectly() {
+	void executesCombinedSpecificationsCorrectly() {
 
 		flushTestUsers();
 		Specification<User> spec = userHasFirstname("Oliver").or(userHasLastname("Arrasz"));
@@ -463,7 +483,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-253
-	public void executesNegatingSpecificationCorrectly() {
+	void executesNegatingSpecificationCorrectly() {
 
 		flushTestUsers();
 		Specification<User> spec = not(userHasFirstname("Oliver")).and(userHasLastname("Arrasz"));
@@ -472,7 +492,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesCombinedSpecificationsWithPageableCorrectly() {
+	void executesCombinedSpecificationsWithPageableCorrectly() {
 
 		flushTestUsers();
 		Specification<User> spec = userHasFirstname("Oliver").or(userHasLastname("Arrasz"));
@@ -484,7 +504,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesMethodWithAnnotatedNamedParametersCorrectly() throws Exception {
+	void executesMethodWithAnnotatedNamedParametersCorrectly() throws Exception {
 
 		firstUser = repository.save(firstUser);
 		secondUser = repository.save(secondUser);
@@ -493,7 +513,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesMethodWithNamedParametersCorrectlyOnMethodsWithQueryCreation() throws Exception {
+	void executesMethodWithNamedParametersCorrectlyOnMethodsWithQueryCreation() throws Exception {
 
 		firstUser = repository.save(firstUser);
 		secondUser = repository.save(secondUser);
@@ -502,7 +522,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesLikeAndOrderByCorrectly() throws Exception {
+	void executesLikeAndOrderByCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -511,7 +531,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesNotLikeCorrectly() throws Exception {
+	void executesNotLikeCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -519,7 +539,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesSimpleNotCorrectly() throws Exception {
+	void executesSimpleNotCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -527,21 +547,21 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void returnsSameListIfNoSpecGiven() throws Exception {
+	void returnsSameListIfNoSpecGiven() throws Exception {
 
 		flushTestUsers();
 		assertSameElements(repository.findAll(), repository.findAll((Specification<User>) null));
 	}
 
 	@Test
-	public void returnsSameListIfNoSortIsGiven() throws Exception {
+	void returnsSameListIfNoSortIsGiven() throws Exception {
 
 		flushTestUsers();
 		assertSameElements(repository.findAll(Sort.unsorted()), repository.findAll());
 	}
 
 	@Test
-	public void returnsSamePageIfNoSpecGiven() throws Exception {
+	void returnsSamePageIfNoSpecGiven() throws Exception {
 
 		Pageable pageable = PageRequest.of(0, 1);
 
@@ -550,14 +570,14 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void returnsAllAsPageIfNoPageableIsGiven() throws Exception {
+	void returnsAllAsPageIfNoPageableIsGiven() throws Exception {
 
 		flushTestUsers();
 		assertThat(repository.findAll(Pageable.unpaged())).isEqualTo(new PageImpl<>(repository.findAll()));
 	}
 
 	@Test
-	public void removeDetachedObject() throws Exception {
+	void removeDetachedObject() throws Exception {
 
 		flushTestUsers();
 
@@ -568,14 +588,14 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesPagedSpecificationsCorrectly() throws Exception {
+	void executesPagedSpecificationsCorrectly() throws Exception {
 
 		Page<User> result = executeSpecWithSort(Sort.unsorted());
 		assertThat(result.getContent()).isSubsetOf(firstUser, thirdUser);
 	}
 
 	@Test
-	public void executesPagedSpecificationsWithSortCorrectly() throws Exception {
+	void executesPagedSpecificationsWithSortCorrectly() throws Exception {
 
 		Page<User> result = executeSpecWithSort(Sort.by(Direction.ASC, "lastname"));
 
@@ -583,7 +603,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesPagedSpecificationWithSortCorrectly2() throws Exception {
+	void executesPagedSpecificationWithSortCorrectly2() throws Exception {
 
 		Page<User> result = executeSpecWithSort(Sort.by(Direction.DESC, "lastname"));
 
@@ -591,26 +611,26 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesQueryMethodWithDeepTraversalCorrectly() throws Exception {
+	void executesQueryMethodWithDeepTraversalCorrectly() throws Exception {
 
 		flushTestUsers();
 
 		firstUser.setManager(secondUser);
 		thirdUser.setManager(firstUser);
-		repository.saveAll(Arrays.asList(firstUser, thirdUser));
+		repository.saveAll(asList(firstUser, thirdUser));
 
 		assertThat(repository.findByManagerLastname("Arrasz")).containsOnly(firstUser);
 		assertThat(repository.findByManagerLastname("Gierke")).containsOnly(thirdUser);
 	}
 
 	@Test
-	public void executesFindByColleaguesLastnameCorrectly() throws Exception {
+	void executesFindByColleaguesLastnameCorrectly() throws Exception {
 
 		flushTestUsers();
 
 		firstUser.addColleague(secondUser);
 		thirdUser.addColleague(firstUser);
-		repository.saveAll(Arrays.asList(firstUser, thirdUser));
+		repository.saveAll(asList(firstUser, thirdUser));
 
 		assertThat(repository.findByColleaguesLastname(secondUser.getLastname())).containsOnly(firstUser);
 
@@ -618,7 +638,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesFindByNotNullLastnameCorrectly() throws Exception {
+	void executesFindByNotNullLastnameCorrectly() throws Exception {
 
 		flushTestUsers();
 
@@ -626,7 +646,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesFindByNullLastnameCorrectly() throws Exception {
+	void executesFindByNullLastnameCorrectly() throws Exception {
 
 		flushTestUsers();
 		User forthUser = repository.save(new User("Foo", null, "email@address.com"));
@@ -635,7 +655,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void findsSortedByLastname() throws Exception {
+	void findsSortedByLastname() throws Exception {
 
 		flushTestUsers();
 
@@ -644,7 +664,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void findsUsersBySpringDataNamedQuery() {
+	void findsUsersBySpringDataNamedQuery() {
 
 		flushTestUsers();
 
@@ -652,7 +672,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATADOC-86
-	public void readsPageWithGroupByClauseCorrectly() {
+	void readsPageWithGroupByClauseCorrectly() {
 
 		flushTestUsers();
 
@@ -661,7 +681,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesLessThatOrEqualQueriesCorrectly() {
+	void executesLessThatOrEqualQueriesCorrectly() {
 
 		flushTestUsers();
 
@@ -669,7 +689,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void executesGreaterThatOrEqualQueriesCorrectly() {
+	void executesGreaterThatOrEqualQueriesCorrectly() {
 
 		flushTestUsers();
 
@@ -677,7 +697,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-117
-	public void executesNativeQueryCorrectly() {
+	void executesNativeQueryCorrectly() {
 
 		flushTestUsers();
 
@@ -685,7 +705,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-132
-	public void executesFinderWithTrueKeywordCorrectly() {
+	void executesFinderWithTrueKeywordCorrectly() {
 
 		flushTestUsers();
 		firstUser.setActive(false);
@@ -695,7 +715,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-132
-	public void executesFinderWithFalseKeywordCorrectly() {
+	void executesFinderWithFalseKeywordCorrectly() {
 
 		flushTestUsers();
 		firstUser.setActive(false);
@@ -708,7 +728,7 @@ public class UserRepositoryTests {
 	 * Ignored until the query declaration is supported by OpenJPA.
 	 */
 	@Test
-	public void executesAnnotatedCollectionMethodCorrectly() {
+	void executesAnnotatedCollectionMethodCorrectly() {
 
 		flushTestUsers();
 		firstUser.addColleague(thirdUser);
@@ -719,7 +739,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-188
-	public void executesFinderWithAfterKeywordCorrectly() {
+	void executesFinderWithAfterKeywordCorrectly() {
 
 		flushTestUsers();
 
@@ -727,7 +747,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-188
-	public void executesFinderWithBeforeKeywordCorrectly() {
+	void executesFinderWithBeforeKeywordCorrectly() {
 
 		flushTestUsers();
 
@@ -735,7 +755,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-180
-	public void executesFinderWithStartingWithCorrectly() {
+	void executesFinderWithStartingWithCorrectly() {
 
 		flushTestUsers();
 
@@ -743,7 +763,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-180
-	public void executesFinderWithEndingWithCorrectly() {
+	void executesFinderWithEndingWithCorrectly() {
 
 		flushTestUsers();
 
@@ -751,7 +771,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-180
-	public void executesFinderWithContainingCorrectly() {
+	void executesFinderWithContainingCorrectly() {
 
 		flushTestUsers();
 
@@ -759,7 +779,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-201
-	public void allowsExecutingPageableMethodWithUnpagedArgument() {
+	void allowsExecutingPageableMethodWithUnpagedArgument() {
 
 		flushTestUsers();
 
@@ -775,7 +795,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-207
-	public void executesNativeQueryForNonEntitiesCorrectly() {
+	void executesNativeQueryForNonEntitiesCorrectly() {
 
 		flushTestUsers();
 
@@ -786,7 +806,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-232
-	public void handlesIterableOfIdsCorrectly() {
+	void handlesIterableOfIdsCorrectly() {
 
 		flushTestUsers();
 
@@ -797,7 +817,7 @@ public class UserRepositoryTests {
 		assertThat(repository.findAllById(set)).containsOnly(firstUser, secondUser);
 	}
 
-	protected void flushTestUsers() {
+	void flushTestUsers() {
 
 		em.persist(adminRole);
 
@@ -842,7 +862,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test
-	public void ordersByReferencedEntityCorrectly() {
+	void ordersByReferencedEntityCorrectly() {
 
 		flushTestUsers();
 		firstUser.setManager(thirdUser);
@@ -854,7 +874,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-252
-	public void bindsSortingToOuterJoinCorrectly() {
+	void bindsSortingToOuterJoinCorrectly() {
 
 		flushTestUsers();
 
@@ -864,7 +884,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-277
-	public void doesNotDropNullValuesOnPagedSpecificationExecution() {
+	void doesNotDropNullValuesOnPagedSpecificationExecution() {
 
 		flushTestUsers();
 
@@ -880,7 +900,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-346
-	public void shouldGenerateLeftOuterJoinInfindAllWithPaginationAndSortOnNestedPropertyPath() {
+	void shouldGenerateLeftOuterJoinInfindAllWithPaginationAndSortOnNestedPropertyPath() {
 
 		firstUser.setManager(null);
 		secondUser.setManager(null);
@@ -899,7 +919,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-292
-	public void executesManualQueryWithPositionLikeExpressionCorrectly() {
+	void executesManualQueryWithPositionLikeExpressionCorrectly() {
 
 		flushTestUsers();
 
@@ -909,7 +929,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-292
-	public void executesManualQueryWithNamedLikeExpressionCorrectly() {
+	void executesManualQueryWithNamedLikeExpressionCorrectly() {
 
 		flushTestUsers();
 
@@ -919,7 +939,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-231
-	public void executesDerivedCountQueryToLong() {
+	void executesDerivedCountQueryToLong() {
 
 		flushTestUsers();
 
@@ -927,7 +947,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-231
-	public void executesDerivedCountQueryToInt() {
+	void executesDerivedCountQueryToInt() {
 
 		flushTestUsers();
 
@@ -935,7 +955,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-231
-	public void executesDerivedExistsQuery() {
+	void executesDerivedExistsQuery() {
 
 		flushTestUsers();
 
@@ -944,13 +964,13 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-332, DATAJPA-1168
-	public void findAllReturnsEmptyIterableIfNoIdsGiven() {
+	void findAllReturnsEmptyIterableIfNoIdsGiven() {
 
 		assertThat(repository.findAllById(Collections.<Integer> emptySet())).isEmpty();
 	}
 
 	@Test // DATAJPA-391
-	public void executesManuallyDefinedQueryWithFieldProjection() {
+	void executesManuallyDefinedQueryWithFieldProjection() {
 
 		flushTestUsers();
 		List<String> lastname = repository.findFirstnamesByLastname("Matthews");
@@ -959,7 +979,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-83
-	public void looksUpEntityReference() {
+	void looksUpEntityReference() {
 
 		flushTestUsers();
 
@@ -968,7 +988,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-415
-	public void invokesQueryWithVarargsParametersCorrectly() {
+	void invokesQueryWithVarargsParametersCorrectly() {
 
 		flushTestUsers();
 
@@ -978,7 +998,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-415
-	public void shouldSupportModifyingQueryWithVarArgs() {
+	void shouldSupportModifyingQueryWithVarArgs() {
 
 		flushTestUsers();
 
@@ -991,7 +1011,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-405
-	public void executesFinderWithOrderClauseOnly() {
+	void executesFinderWithOrderClauseOnly() {
 
 		flushTestUsers();
 
@@ -999,7 +1019,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-427
-	public void sortByAssociationPropertyShouldUseLeftOuterJoin() {
+	void sortByAssociationPropertyShouldUseLeftOuterJoin() {
 
 		secondUser.getColleagues().add(firstUser);
 		fourthUser.getColleagues().add(thirdUser);
@@ -1011,7 +1031,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-427
-	public void sortByAssociationPropertyInPageableShouldUseLeftOuterJoin() {
+	void sortByAssociationPropertyInPageableShouldUseLeftOuterJoin() {
 
 		secondUser.getColleagues().add(firstUser);
 		fourthUser.getColleagues().add(thirdUser);
@@ -1023,7 +1043,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-427
-	public void sortByEmbeddedProperty() {
+	void sortByEmbeddedProperty() {
 
 		thirdUser.setAddress(new Address("Germany", "Saarbrücken", "HaveItYourWay", "123"));
 		flushTestUsers();
@@ -1035,7 +1055,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-454
-	public void findsUserByBinaryDataReference() throws Exception {
+	void findsUserByBinaryDataReference() throws Exception {
 
 		byte[] data = "Woho!!".getBytes("UTF-8");
 		firstUser.setBinaryData(data);
@@ -1048,7 +1068,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-461
-	public void customFindByQueryWithPositionalVarargsParameters() {
+	void customFindByQueryWithPositionalVarargsParameters() {
 
 		flushTestUsers();
 
@@ -1058,7 +1078,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-461
-	public void customFindByQueryWithNamedVarargsParameters() {
+	void customFindByQueryWithNamedVarargsParameters() {
 
 		flushTestUsers();
 
@@ -1068,7 +1088,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-464
-	public void saveAndFlushShouldSupportReturningSubTypesOfRepositoryEntity() {
+	void saveAndFlushShouldSupportReturningSubTypesOfRepositoryEntity() {
 
 		repository.deleteAll();
 		SpecialUser user = new SpecialUser();
@@ -1082,7 +1102,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByUntypedExampleShouldReturnSubTypesOfRepositoryEntity() {
+	void findAllByUntypedExampleShouldReturnSubTypesOfRepositoryEntity() {
 
 		flushTestUsers();
 
@@ -1099,7 +1119,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByTypedUserExampleShouldReturnSubTypesOfRepositoryEntity() {
+	void findAllByTypedUserExampleShouldReturnSubTypesOfRepositoryEntity() {
 
 		flushTestUsers();
 
@@ -1116,7 +1136,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByTypedSpecialUserExampleShouldReturnSubTypesOfRepositoryEntity() {
+	void findAllByTypedSpecialUserExampleShouldReturnSubTypesOfRepositoryEntity() {
 
 		flushTestUsers();
 
@@ -1134,7 +1154,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-491
-	public void sortByNestedAssociationPropertyWithSortInPageable() {
+	void sortByNestedAssociationPropertyWithSortInPageable() {
 
 		firstUser.setManager(thirdUser);
 		thirdUser.setManager(fourthUser);
@@ -1149,7 +1169,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-510
-	public void sortByNestedAssociationPropertyWithSortOrderIgnoreCaseInPageable() {
+	void sortByNestedAssociationPropertyWithSortOrderIgnoreCaseInPageable() {
 
 		firstUser.setManager(thirdUser);
 		thirdUser.setManager(fourthUser);
@@ -1164,7 +1184,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-496
-	public void findByElementCollectionAttribute() {
+	void findByElementCollectionAttribute() {
 
 		firstUser.getAttributes().add("cool");
 		secondUser.getAttributes().add("hip");
@@ -1172,13 +1192,13 @@ public class UserRepositoryTests {
 
 		flushTestUsers();
 
-		List<User> result = repository.findByAttributesIn(new HashSet<>(Arrays.asList("cool", "hip")));
+		List<User> result = repository.findByAttributesIn(new HashSet<>(asList("cool", "hip")));
 
 		assertThat(result).containsOnly(firstUser, secondUser);
 	}
 
 	@Test // DATAJPA-460
-	public void deleteByShouldReturnListOfDeletedElementsWhenRetunTypeIsCollectionLike() {
+	void deleteByShouldReturnListOfDeletedElementsWhenRetunTypeIsCollectionLike() {
 
 		flushTestUsers();
 
@@ -1187,7 +1207,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-460
-	public void deleteByShouldRemoveElementsMatchingDerivedQuery() {
+	void deleteByShouldRemoveElementsMatchingDerivedQuery() {
 
 		flushTestUsers();
 
@@ -1196,7 +1216,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-460
-	public void deleteByShouldReturnNumberOfEntitiesRemovedIfReturnTypeIsLong() {
+	void deleteByShouldReturnNumberOfEntitiesRemovedIfReturnTypeIsLong() {
 
 		flushTestUsers();
 
@@ -1204,7 +1224,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-460
-	public void deleteByShouldReturnZeroInCaseNoEntityHasBeenRemovedAndReturnTypeIsNumber() {
+	void deleteByShouldReturnZeroInCaseNoEntityHasBeenRemovedAndReturnTypeIsNumber() {
 
 		flushTestUsers();
 
@@ -1212,7 +1232,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-460
-	public void deleteByShouldReturnEmptyListInCaseNoEntityHasBeenRemovedAndReturnTypeIsCollectionLike() {
+	void deleteByShouldReturnEmptyListInCaseNoEntityHasBeenRemovedAndReturnTypeIsCollectionLike() {
 
 		flushTestUsers();
 
@@ -1223,8 +1243,8 @@ public class UserRepositoryTests {
 	 * @see <a href="https://issues.apache.org/jira/browse/OPENJPA-2484">OPENJPA-2484</a>
 	 */
 	@Test // DATAJPA-505
-	@Ignore
-	public void findBinaryDataByIdJpaQl() throws Exception {
+	@Disabled
+	void findBinaryDataByIdJpaQl() throws Exception {
 
 		byte[] data = "Woho!!".getBytes("UTF-8");
 		firstUser.setBinaryData(data);
@@ -1238,7 +1258,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-506
-	public void findBinaryDataByIdNative() throws Exception {
+	void findBinaryDataByIdNative() throws Exception {
 
 		byte[] data = "Woho!!".getBytes("UTF-8");
 		firstUser.setBinaryData(data);
@@ -1252,7 +1272,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-456
-	public void findPaginatedExplicitQueryWithCountQueryProjection() {
+	void findPaginatedExplicitQueryWithCountQueryProjection() {
 
 		firstUser.setFirstname(null);
 
@@ -1264,7 +1284,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-456
-	public void findPaginatedNamedQueryWithCountQueryProjection() {
+	void findPaginatedNamedQueryWithCountQueryProjection() {
 
 		flushTestUsers();
 
@@ -1274,7 +1294,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void findOldestUser() {
+	void findOldestUser() {
 
 		flushTestUsers();
 
@@ -1285,7 +1305,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void findYoungestUser() {
+	void findYoungestUser() {
 
 		flushTestUsers();
 
@@ -1296,7 +1316,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find2OldestUsers() {
+	void find2OldestUsers() {
 
 		flushTestUsers();
 
@@ -1308,7 +1328,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find2YoungestUsers() {
+	void find2YoungestUsers() {
 
 		flushTestUsers();
 
@@ -1320,7 +1340,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find3YoungestUsersPageableWithPageSize2() {
+	void find3YoungestUsersPageableWithPageSize2() {
 
 		flushTestUsers();
 
@@ -1336,7 +1356,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find2YoungestUsersPageableWithPageSize3() {
+	void find2YoungestUsersPageableWithPageSize3() {
 
 		flushTestUsers();
 
@@ -1352,7 +1372,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find3YoungestUsersPageableWithPageSize2Sliced() {
+	void find3YoungestUsersPageableWithPageSize2Sliced() {
 
 		flushTestUsers();
 
@@ -1368,7 +1388,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-551
-	public void find2YoungestUsersPageableWithPageSize3Sliced() {
+	void find2YoungestUsersPageableWithPageSize3Sliced() {
 
 		flushTestUsers();
 
@@ -1384,7 +1404,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pageableQueryReportsTotalFromResult() {
+	void pageableQueryReportsTotalFromResult() {
 
 		flushTestUsers();
 
@@ -1398,7 +1418,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pageableQueryReportsTotalFromCount() {
+	void pageableQueryReportsTotalFromCount() {
 
 		flushTestUsers();
 
@@ -1412,7 +1432,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-506
-	public void invokesQueryWithWrapperType() {
+	void invokesQueryWithWrapperType() {
 
 		flushTestUsers();
 
@@ -1423,7 +1443,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindUserByFirstnameAndLastnameWithSpelExpressionInStringBasedQuery() {
+	void shouldFindUserByFirstnameAndLastnameWithSpelExpressionInStringBasedQuery() {
 
 		flushTestUsers();
 		List<User> users = repository.findByFirstnameAndLastnameWithSpelExpression("Oliver", "ierk");
@@ -1432,7 +1452,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindUserByLastnameWithSpelExpressionInStringBasedQuery() {
+	void shouldFindUserByLastnameWithSpelExpressionInStringBasedQuery() {
 
 		flushTestUsers();
 		List<User> users = repository.findByLastnameWithSpelExpression("ierk");
@@ -1441,7 +1461,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindBySpELExpressionWithoutArgumentsWithQuestionmark() {
+	void shouldFindBySpELExpressionWithoutArgumentsWithQuestionmark() {
 
 		flushTestUsers();
 		List<User> users = repository.findOliverBySpELExpressionWithoutArgumentsWithQuestionmark();
@@ -1450,7 +1470,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindBySpELExpressionWithoutArgumentsWithColon() {
+	void shouldFindBySpELExpressionWithoutArgumentsWithColon() {
 
 		flushTestUsers();
 		List<User> users = repository.findOliverBySpELExpressionWithoutArgumentsWithColon();
@@ -1459,7 +1479,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindUsersByAgeForSpELExpression() {
+	void shouldFindUsersByAgeForSpELExpression() {
 
 		flushTestUsers();
 		List<User> users = repository.findUsersByAgeForSpELExpressionByIndexedParameter(35);
@@ -1468,7 +1488,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldfindUsersByFirstnameForSpELExpressionWithParameterNameVariableReference() {
+	void shouldfindUsersByFirstnameForSpELExpressionWithParameterNameVariableReference() {
 
 		flushTestUsers();
 		List<User> users = repository.findUsersByFirstnameForSpELExpression("Joachim");
@@ -1477,7 +1497,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindCurrentUserWithCustomQueryDependingOnSecurityContext() {
+	void shouldFindCurrentUserWithCustomQueryDependingOnSecurityContext() {
 
 		flushTestUsers();
 
@@ -1493,7 +1513,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindByFirstnameAndCurrentUserWithCustomQuery() {
+	void shouldFindByFirstnameAndCurrentUserWithCustomQuery() {
 
 		flushTestUsers();
 
@@ -1504,7 +1524,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldfindUsersByFirstnameForSpELExpressionOnlyWithParameterNameVariableReference() {
+	void shouldfindUsersByFirstnameForSpELExpressionOnlyWithParameterNameVariableReference() {
 
 		flushTestUsers();
 		List<User> users = repository.findUsersByFirstnameForSpELExpressionWithParameterVariableOnly("Joachim");
@@ -1513,7 +1533,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldfindUsersByFirstnameForSpELExpressionOnlyWithParameterIndexReference() {
+	void shouldfindUsersByFirstnameForSpELExpressionOnlyWithParameterIndexReference() {
 
 		flushTestUsers();
 		List<User> users = repository.findUsersByFirstnameForSpELExpressionWithParameterIndexOnly("Joachim");
@@ -1522,7 +1542,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-564
-	public void shouldFindUsersInNativeQueryWithPagination() {
+	void shouldFindUsersInNativeQueryWithPagination() {
 
 		flushTestUsers();
 
@@ -1540,7 +1560,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1140
-	public void shouldFindUsersByUserFirstnameAsSpELExpressionAndLastnameAsStringInStringBasedQuery() {
+	void shouldFindUsersByUserFirstnameAsSpELExpressionAndLastnameAsStringInStringBasedQuery() {
 
 		flushTestUsers();
 
@@ -1551,7 +1571,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1140
-	public void shouldFindUsersByFirstnameAsStringAndUserLastnameAsSpELExpressionInStringBasedQuery() {
+	void shouldFindUsersByFirstnameAsStringAndUserLastnameAsSpELExpressionInStringBasedQuery() {
 
 		flushTestUsers();
 
@@ -1562,7 +1582,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1140
-	public void shouldFindUsersByUserFirstnameAsSpELExpressionAndLastnameAsFakeSpELExpressionInStringBasedQuery() {
+	void shouldFindUsersByUserFirstnameAsSpELExpressionAndLastnameAsFakeSpELExpressionInStringBasedQuery() {
 
 		flushTestUsers();
 
@@ -1573,7 +1593,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1140
-	public void shouldFindUsersByFirstnameAsFakeSpELExpressionAndUserLastnameAsSpELExpressionInStringBasedQuery() {
+	void shouldFindUsersByFirstnameAsFakeSpELExpressionAndUserLastnameAsSpELExpressionInStringBasedQuery() {
 
 		flushTestUsers();
 
@@ -1584,7 +1604,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1140
-	public void shouldFindUsersByFirstnameWithLeadingPageableParameter() {
+	void shouldFindUsersByFirstnameWithLeadingPageableParameter() {
 
 		flushTestUsers();
 
@@ -1594,7 +1614,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-629
-	public void shouldfindUsersBySpELExpressionParametersWithSpelTemplateExpression() {
+	void shouldfindUsersBySpELExpressionParametersWithSpelTemplateExpression() {
 
 		flushTestUsers();
 		List<User> users = repository
@@ -1604,7 +1624,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-606
-	public void findByEmptyCollectionOfStrings() throws Exception {
+	void findByEmptyCollectionOfStrings() throws Exception {
 
 		flushTestUsers();
 
@@ -1613,7 +1633,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-606
-	public void findByEmptyCollectionOfIntegers() throws Exception {
+	void findByEmptyCollectionOfIntegers() throws Exception {
 
 		flushTestUsers();
 
@@ -1622,7 +1642,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-606
-	public void findByEmptyArrayOfIntegers() throws Exception {
+	void findByEmptyArrayOfIntegers() throws Exception {
 
 		flushTestUsers();
 
@@ -1631,7 +1651,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-606
-	public void findByAgeWithEmptyArrayOfIntegersOrFirstName() {
+	void findByAgeWithEmptyArrayOfIntegersOrFirstName() {
 
 		flushTestUsers();
 
@@ -1640,7 +1660,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-677
-	public void shouldSupportJava8StreamsForRepositoryFinderMethods() {
+	void shouldSupportJava8StreamsForRepositoryFinderMethods() {
 
 		flushTestUsers();
 
@@ -1650,7 +1670,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-677
-	public void shouldSupportJava8StreamsForRepositoryDerivedFinderMethods() {
+	void shouldSupportJava8StreamsForRepositoryDerivedFinderMethods() {
 
 		flushTestUsers();
 
@@ -1660,7 +1680,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-677
-	public void supportsJava8StreamForPageableMethod() {
+	void supportsJava8StreamForPageableMethod() {
 
 		flushTestUsers();
 
@@ -1670,7 +1690,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExample() {
+	void findAllByExample() {
 
 		flushTestUsers();
 
@@ -1685,7 +1705,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithEmptyProbe() {
+	void findAllByExampleWithEmptyProbe() {
 
 		flushTestUsers();
 
@@ -1698,13 +1718,14 @@ public class UserRepositoryTests {
 		assertThat(users).hasSize(4);
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class) // DATAJPA-218
-	public void findAllByNullExample() {
-		repository.findAll((Example<User>) null);
+	@Test // DATAJPA-218
+	void findAllByNullExample() {
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> repository.findAll((Example<User>) null));
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithExcludedAttributes() {
+	void findAllByExampleWithExcludedAttributes() {
 
 		flushTestUsers();
 
@@ -1718,13 +1739,13 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithAssociation() {
+	void findAllByExampleWithAssociation() {
 
 		flushTestUsers();
 
 		firstUser.setManager(secondUser);
 		thirdUser.setManager(firstUser);
-		repository.saveAll(Arrays.asList(firstUser, thirdUser));
+		repository.saveAll(asList(firstUser, thirdUser));
 
 		User manager = new User();
 		manager.setLastname("Arrasz");
@@ -1743,7 +1764,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithEmbedded() {
+	void findAllByExampleWithEmbedded() {
 
 		flushTestUsers();
 
@@ -1761,7 +1782,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithStartingStringMatcher() {
+	void findAllByExampleWithStartingStringMatcher() {
 
 		flushTestUsers();
 
@@ -1776,7 +1797,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithEndingStringMatcher() {
+	void findAllByExampleWithEndingStringMatcher() {
 
 		flushTestUsers();
 
@@ -1790,8 +1811,8 @@ public class UserRepositoryTests {
 		assertThat(users).containsOnly(firstUser);
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class) // DATAJPA-218
-	public void findAllByExampleWithRegexStringMatcher() {
+	@Test // DATAJPA-218
+	void findAllByExampleWithRegexStringMatcher() {
 
 		flushTestUsers();
 
@@ -1799,11 +1820,11 @@ public class UserRepositoryTests {
 		prototype.setFirstname("^Oliver$");
 
 		Example<User> example = Example.of(prototype, matching().withStringMatcher(StringMatcher.REGEX));
-		repository.findAll(example);
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() -> repository.findAll(example));
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithIgnoreCase() {
+	void findAllByExampleWithIgnoreCase() {
 
 		flushTestUsers();
 
@@ -1818,7 +1839,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithStringMatcherAndIgnoreCase() {
+	void findAllByExampleWithStringMatcherAndIgnoreCase() {
 
 		flushTestUsers();
 
@@ -1834,7 +1855,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithIncludeNull() {
+	void findAllByExampleWithIncludeNull() {
 
 		flushTestUsers();
 
@@ -1847,7 +1868,7 @@ public class UserRepositoryTests {
 		fifthUser.setFirstname(firstUser.getFirstname());
 		fifthUser.setLastname(firstUser.getLastname());
 
-		repository.saveAll(Arrays.asList(firstUser, fifthUser));
+		repository.saveAll(asList(firstUser, fifthUser));
 
 		User prototype = new User();
 		prototype.setFirstname(firstUser.getFirstname());
@@ -1861,7 +1882,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithPropertySpecifier() {
+	void findAllByExampleWithPropertySpecifier() {
 
 		flushTestUsers();
 
@@ -1877,7 +1898,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithSort() {
+	void findAllByExampleWithSort() {
 
 		flushTestUsers();
 
@@ -1898,7 +1919,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void findAllByExampleWithPageable() {
+	void findAllByExampleWithPageable() {
 
 		flushTestUsers();
 
@@ -1922,8 +1943,8 @@ public class UserRepositoryTests {
 		assertThat(users.getTotalElements()).isEqualTo(100L);
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class) // DATAJPA-218
-	public void findAllByExampleShouldNotAllowCycles() {
+	@Test // DATAJPA-218
+	void findAllByExampleShouldNotAllowCycles() {
 
 		flushTestUsers();
 
@@ -1935,11 +1956,12 @@ public class UserRepositoryTests {
 		Example<User> example = Example.of(user1, matching().withIgnoreCase().withIgnorePaths("age", "createdAt")
 				.withStringMatcher(StringMatcher.STARTING).withIgnoreCase());
 
-		repository.findAll(example, PageRequest.of(0, 10, Sort.by(DESC, "age")));
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> repository.findAll(example, PageRequest.of(0, 10, Sort.by(DESC, "age"))));
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class) // DATAJPA-218
-	public void findAllByExampleShouldNotAllowCyclesOverSeveralInstances() {
+	@Test // DATAJPA-218
+	void findAllByExampleShouldNotAllowCyclesOverSeveralInstances() {
 
 		flushTestUsers();
 
@@ -1955,11 +1977,12 @@ public class UserRepositoryTests {
 		Example<User> example = Example.of(user1, matching().withIgnoreCase().withIgnorePaths("age", "createdAt")
 				.withStringMatcher(StringMatcher.STARTING).withIgnoreCase());
 
-		repository.findAll(example, PageRequest.of(0, 10, Sort.by(DESC, "age")));
+		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+				.isThrownBy(() -> repository.findAll(example, PageRequest.of(0, 10, Sort.by(DESC, "age"))));
 	}
 
 	@Test // DATAJPA-218
-	public void findOneByExampleWithExcludedAttributes() {
+	void findOneByExampleWithExcludedAttributes() {
 
 		flushTestUsers();
 
@@ -1972,7 +1995,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void countByExampleWithExcludedAttributes() {
+	void countByExampleWithExcludedAttributes() {
 
 		flushTestUsers();
 
@@ -1986,7 +2009,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-218
-	public void existsByExampleWithExcludedAttributes() {
+	void existsByExampleWithExcludedAttributes() {
 
 		flushTestUsers();
 
@@ -2000,7 +2023,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-905
-	public void executesPagedSpecificationSettingAnOrder() {
+	void executesPagedSpecificationSettingAnOrder() {
 
 		flushTestUsers();
 
@@ -2012,7 +2035,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1172
-	public void exceptionsDuringParameterSettingGetThrown() {
+	void exceptionsDuringParameterSettingGetThrown() {
 
 		assertThatExceptionOfType(InvalidDataAccessApiUsageException.class) //
 				.isThrownBy(() -> repository.findByStringAge("twelve")) //
@@ -2020,14 +2043,14 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1172
-	public void queryProvidesCorrectNumberOfParametersForNativeQuery() {
+	void queryProvidesCorrectNumberOfParametersForNativeQuery() {
 
 		Query query = em.createNativeQuery("select 1 from User where firstname=? and lastname=?");
 		assertThat(query.getParameters()).hasSize(2);
 	}
 
 	@Test // DATAJPA-1185
-	public void dynamicProjectionReturningStream() {
+	void dynamicProjectionReturningStream() {
 
 		flushTestUsers();
 
@@ -2035,7 +2058,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1185
-	public void dynamicProjectionReturningList() {
+	void dynamicProjectionReturningList() {
 
 		flushTestUsers();
 
@@ -2045,7 +2068,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1179
-	public void duplicateSpelsWorkAsIntended() {
+	void duplicateSpelsWorkAsIntended() {
 
 		flushTestUsers();
 
@@ -2055,7 +2078,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-980
-	public void supportsProjectionsWithNativeQueries() {
+	void supportsProjectionsWithNativeQueries() {
 
 		flushTestUsers();
 
@@ -2068,7 +2091,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1248
-	public void supportsProjectionsWithNativeQueriesAndCamelCaseProperty() {
+	void supportsProjectionsWithNativeQueriesAndCamelCaseProperty() {
 
 		flushTestUsers();
 		User user = repository.findAll().get(0);
@@ -2084,7 +2107,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1235
-	public void handlesColonsFollowedByIntegerInStringLiteral() {
+	void handlesColonsFollowedByIntegerInStringLiteral() {
 
 		String firstName = "aFirstName";
 
@@ -2102,23 +2125,23 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1233
-	public void handlesCountQueriesWithLessParametersSingleParam() {
+	void handlesCountQueriesWithLessParametersSingleParam() {
 		repository.findAllOrderedBySpecialNameSingleParam("Oliver", PageRequest.of(2, 3));
 	}
 
 	@Test // DATAJPA-1233
-	public void handlesCountQueriesWithLessParametersMoreThanOne() {
+	void handlesCountQueriesWithLessParametersMoreThanOne() {
 		repository.findAllOrderedBySpecialNameMultipleParams("Oliver", "x", PageRequest.of(2, 3));
 	}
 
 	@Test // DATAJPA-1233
-	public void handlesCountQueriesWithLessParametersMoreThanOneIndexed() {
+	void handlesCountQueriesWithLessParametersMoreThanOneIndexed() {
 		repository.findAllOrderedBySpecialNameMultipleParamsIndexed("Oliver", "x", PageRequest.of(2, 3));
 	}
 
 	// DATAJPA-928
 	@Test
-	public void executeNativeQueryWithPage() {
+	void executeNativeQueryWithPage() {
 
 		flushTestUsers();
 
@@ -2144,7 +2167,7 @@ public class UserRepositoryTests {
 
 	// DATAJPA-928
 	@Test
-	public void executeNativeQueryWithPageWorkaround() {
+	void executeNativeQueryWithPageWorkaround() {
 
 		flushTestUsers();
 
@@ -2167,7 +2190,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1273
-	public void bindsNativeQueryResultsToProjectionByName() {
+	void bindsNativeQueryResultsToProjectionByName() {
 
 		flushTestUsers();
 
@@ -2180,7 +2203,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1301
-	public void returnsNullValueInMap() {
+	void returnsNullValueInMap() {
 
 		firstUser.setLastname(null);
 		flushTestUsers();
@@ -2205,7 +2228,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1307
-	public void testFindByEmailAddressJdbcStyleParameter() throws Exception {
+	void testFindByEmailAddressJdbcStyleParameter() throws Exception {
 
 		flushTestUsers();
 
@@ -2213,19 +2236,19 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1535
-	public void savingUserThrowsAnException() {
+	void savingUserThrowsAnException() {
 		// if this test fails this means deleteNewInstanceSucceedsByDoingNothing() might actually save the user without the
 		// test failing, which would be a bad thing.
 		assertThatThrownBy(() -> repository.save(new User())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	@Test // DATAJPA-1535
-	public void deleteNewInstanceSucceedsByDoingNothing() {
+	void deleteNewInstanceSucceedsByDoingNothing() {
 		repository.delete(new User());
 	}
 
 	@Test // DATAJPA-1303
-	public void findByElementCollectionInAttributeIgnoreCase() {
+	void findByElementCollectionInAttributeIgnoreCase() {
 
 		firstUser.getAttributes().add("cOOl");
 		secondUser.getAttributes().add("hIp");
@@ -2233,13 +2256,13 @@ public class UserRepositoryTests {
 
 		flushTestUsers();
 
-		List<User> result = repository.findByAttributesIgnoreCaseIn(new HashSet<>(Arrays.asList("cOOl", "hIP")));
+		List<User> result = repository.findByAttributesIgnoreCaseIn(new HashSet<>(asList("cOOl", "hIP")));
 
 		assertThat(result).containsOnly(firstUser, secondUser);
 	}
 
 	@Test // DATAJPA-1303
-	public void findByElementCollectionNotInAttributeIgnoreCase() {
+	void findByElementCollectionNotInAttributeIgnoreCase() {
 
 		firstUser.getAttributes().add("cOOl");
 		secondUser.getAttributes().add("hIp");
@@ -2247,13 +2270,13 @@ public class UserRepositoryTests {
 
 		flushTestUsers();
 
-		List<User> result = repository.findByAttributesIgnoreCaseNotIn(Arrays.asList("CooL", "HIp"));
+		List<User> result = repository.findByAttributesIgnoreCaseNotIn(asList("CooL", "HIp"));
 
 		assertThat(result).containsOnly(thirdUser);
 	}
 
 	@Test // DATAJPA-1303
-	public void findByElementVarargInAttributeIgnoreCase() {
+	void findByElementVarargInAttributeIgnoreCase() {
 
 		firstUser.getAttributes().add("cOOl");
 		secondUser.getAttributes().add("hIp");
@@ -2267,7 +2290,7 @@ public class UserRepositoryTests {
 	}
 
 	@Test // DATAJPA-1303
-	public void findByElementCollectionInAttributeIgnoreCaseWithNulls() {
+	void findByElementCollectionInAttributeIgnoreCaseWithNulls() {
 
 		firstUser.getAttributes().add("cOOl");
 		secondUser.getAttributes().add("hIp");
@@ -2275,7 +2298,7 @@ public class UserRepositoryTests {
 
 		flushTestUsers();
 
-		List<User> result = repository.findByAttributesIgnoreCaseIn(Arrays.asList("cOOl", null));
+		List<User> result = repository.findByAttributesIgnoreCaseIn(asList("cOOl", null));
 
 		assertThat(result).containsOnly(firstUser);
 	}

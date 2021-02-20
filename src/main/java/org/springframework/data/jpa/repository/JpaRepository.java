@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,12 +77,35 @@ public interface JpaRepository<T, ID> extends PagingAndSortingRepository<T, ID>,
 	<S extends T> S saveAndFlush(S entity);
 
 	/**
-	 * Deletes the given entities in a batch which means it will create a single {@link Query}. Assume that we will clear
-	 * the {@link javax.persistence.EntityManager} after the call.
+	 * Deletes the given entities in a batch which means it will create a single query. This kind of operation leaves JPAs
+	 * first level cache and the database out of sync. Consider flushing the {@link EntityManager} before calling this
+	 * method.
 	 *
 	 * @param entities
+	 * @deprecated Use {@link #deleteAllInBatch(Iterable)} instead.
 	 */
-	void deleteInBatch(Iterable<T> entities);
+	@Deprecated
+	default void deleteInBatch(Iterable<T> entities){deleteAllInBatch(entities);}
+
+	/**
+	 * Deletes the given entities in a batch which means it will create a single query. This kind of operation leaves JPAs
+	 * first level cache and the database out of sync. Consider flushing the {@link EntityManager} before calling this
+	 * method.
+	 *
+	 * @param entities
+	 * @since 3.0
+	 */
+	void deleteAllInBatch(Iterable<T> entities);
+
+
+	/**
+	 * Deletes the entities identified by the given ids using a single query. This kind of operation leaves JPAs first
+	 * level cache and the database out of sync. Consider flushing the {@link EntityManager} before calling this method.
+	 *
+	 * @param ids
+	 * @since 3.0
+	 */
+	void deleteAllByIdInBatch(Iterable<ID> ids);
 
 	/**
 	 * Deletes all entities in a batch call.

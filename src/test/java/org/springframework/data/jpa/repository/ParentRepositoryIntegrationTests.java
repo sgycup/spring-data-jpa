@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.data.jpa.repository;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.List;
 import java.util.Set;
 
@@ -24,9 +26,10 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,23 +39,21 @@ import org.springframework.data.jpa.domain.sample.Child;
 import org.springframework.data.jpa.domain.sample.Parent;
 import org.springframework.data.jpa.repository.sample.ParentRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jens Schauder
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:config/namespace-application-context.xml")
 public class ParentRepositoryIntegrationTests {
 
 	@Autowired ParentRepository repository;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		repository.save(new Parent().add(new Child()));
 		repository.save(new Parent().add(new Child()).add(new Child()));
@@ -62,7 +63,7 @@ public class ParentRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-287
-	public void testWithoutJoin() {
+	void testWithoutJoin() {
 
 		Page<Parent> page = repository.findAll(new Specification<Parent>() {
 			@Override
@@ -83,7 +84,7 @@ public class ParentRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-287
-	public void testWithJoin() throws Exception {
+	void testWithJoin() throws Exception {
 		Page<Parent> page = repository.findAll(new Specification<Parent>() {
 			@Override
 			public Predicate toPredicate(Root<Parent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

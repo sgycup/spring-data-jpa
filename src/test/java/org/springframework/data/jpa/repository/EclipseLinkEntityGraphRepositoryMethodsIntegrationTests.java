@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.springframework.data.jpa.repository;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -24,46 +24,46 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Christoph Strobl
  */
 @ContextConfiguration("classpath:eclipselink.xml")
-public class EclipseLinkEntityGraphRepositoryMethodsIntegrationTests
+class EclipseLinkEntityGraphRepositoryMethodsIntegrationTests
 		extends EntityGraphRepositoryMethodsIntegrationTests {
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectNamedEntitySubGraph() {}
+	void shouldRespectNamedEntitySubGraph() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectMultipleSubGraphForSameAttributeWithDynamicFetchGraph() {}
+	void shouldRespectMultipleSubGraphForSameAttributeWithDynamicFetchGraph() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectDynamicFetchGraphForGetOneWithAttributeNamesById() {}
+	void shouldRespectDynamicFetchGraphForGetOneWithAttributeNamesById() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectConfiguredJpaEntityGraphWithPaginationAndQueryDslPredicates() {}
+	void shouldRespectConfiguredJpaEntityGraphWithPaginationAndQueryDslPredicates() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectConfiguredJpaEntityGraphWithPaginationAndSpecification() {}
+	void shouldRespectConfiguredJpaEntityGraphWithPaginationAndSpecification() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldCreateDynamicGraphWithMultipleLevelsOfSubgraphs() {}
+	void shouldCreateDynamicGraphWithMultipleLevelsOfSubgraphs() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectConfiguredJpaEntityGraphInFindOne() {}
+	void shouldRespectConfiguredJpaEntityGraphInFindOne() {}
 
-	@Ignore("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
+	@Disabled("Bug 510627 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=510627")
 	@Test
 	@Override
-	public void shouldRespectInferFetchGraphFromMethodName() {}
+	void shouldRespectInferFetchGraphFromMethodName() {}
 }

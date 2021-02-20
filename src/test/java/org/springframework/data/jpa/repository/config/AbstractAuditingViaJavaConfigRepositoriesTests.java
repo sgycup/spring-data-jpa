@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,7 @@ import org.springframework.data.jpa.repository.sample.SampleEvaluationContextExt
 import org.springframework.data.jpa.util.FixedDate;
 import org.springframework.data.spel.spi.EvaluationContextExtension;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -54,19 +55,19 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @Transactional
 @DirtiesContext
 public abstract class AbstractAuditingViaJavaConfigRepositoriesTests {
 
 	@Autowired AuditableUserRepository auditableUserRepository;
 	@Autowired AuditorAware<AuditableUser> auditorAware;
-	AuditableUser auditor;
+	private AuditableUser auditor;
 
 	@Autowired EntityManager em;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		AuditableUser auditor = new AuditableUser(null);
 		auditor.setFirstname("auditor");
@@ -76,13 +77,13 @@ public abstract class AbstractAuditingViaJavaConfigRepositoriesTests {
 		when(this.auditorAware.getCurrentAuditor()).thenReturn(Optional.of(this.auditor));
 	}
 
-	@After
-	public void teardown() {
+	@AfterEach
+	void teardown() {
 		Mockito.reset(this.auditorAware);
 	}
 
 	@Test
-	public void basicAuditing() throws Exception {
+	void basicAuditing() throws Exception {
 
 		AuditableUser user = new AuditableUser(null);
 		user.setFirstname("user");
@@ -99,7 +100,7 @@ public abstract class AbstractAuditingViaJavaConfigRepositoriesTests {
 	}
 
 	@Test // DATAJPA-382
-	public void shouldAllowUseOfDynamicSpelParametersInUpdateQueries() {
+	void shouldAllowUseOfDynamicSpelParametersInUpdateQueries() {
 
 		AuditableUser oliver = auditableUserRepository.save(new AuditableUser(null, "oliver"));
 		AuditableUser christoph = auditableUserRepository.save(new AuditableUser(null, "christoph"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import static org.mockito.Mockito.*;
 
 import javax.persistence.metamodel.Metamodel;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.jpa.repository.config.JpaRepositoryConfigExtension;
@@ -32,16 +35,17 @@ import org.springframework.data.repository.config.RepositoryConfigurationSource;
 
 /**
  * Integration tests for {@link JpaMetamodelCacheCleanup}.
- * 
+ *
  * @author Oliver Gierke
  */
-@RunWith(MockitoJUnitRunner.class)
-public class JpaMetamodelCacheCleanupIntegrationTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaMetamodelCacheCleanupIntegrationTests {
 
 	@Mock Metamodel metamodel;
 
 	@Test // DATAJPA-1446
-	public void wipesJpaMetamodelCacheOnApplicationContextClose() {
+	void wipesJpaMetamodelCacheOnApplicationContextClose() {
 
 		JpaMetamodel model = JpaMetamodel.of(metamodel);
 
@@ -57,7 +61,7 @@ public class JpaMetamodelCacheCleanupIntegrationTests {
 	}
 
 	@Test // DATAJPA-1487, DATAJPA-1446
-	public void registersCleanupBeanAsNonLazy() {
+	void registersCleanupBeanAsNonLazy() {
 
 		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 		RepositoryConfigurationSource configurationSource = mock(RepositoryConfigurationSource.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.springframework.data.jpa.infrastructure;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -25,37 +25,37 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Oliver Gierke
  */
 @ContextConfiguration("classpath:eclipselink.xml")
-public class EclipseLinkMetamodelIntegrationTests extends MetamodelIntegrationTests {
+class EclipseLinkMetamodelIntegrationTests extends MetamodelIntegrationTests {
 
 	/**
 	 * TODO: Remove, once https://bugs.eclipse.org/bugs/show_bug.cgi?id=427892 is fixed.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	@Override
-	public void canAccessParametersByIndexForNativeQueries() {}
+	void canAccessParametersByIndexForNativeQueries() {}
 
 	/**
 	 * TODO: Remove, once https://bugs.eclipse.org/bugs/show_bug.cgi?id=463663 is fixed.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	@Override
-	public void pathToEntityIsOfBindableTypeEntityType() {}
+	void pathToEntityIsOfBindableTypeEntityType() {}
 
 	/**
 	 * TODO: Remove, once https://bugs.eclipse.org/bugs/show_bug.cgi?id=289141 is fixed.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	@Override
-	public void doesNotExposeAliasForTupleIfNoneDefined() {}
+	void doesNotExposeAliasForTupleIfNoneDefined() {}
 
 	/**
 	 * TODO: Remove, once https://bugs.eclipse.org/bugs/show_bug.cgi?id=289141 is fixed.
 	 */
 	@Test
-	@Ignore
+	@Disabled
 	@Override
-	public void returnsAliasesInTuple() {}
+	void returnsAliasesInTuple() {}
 }

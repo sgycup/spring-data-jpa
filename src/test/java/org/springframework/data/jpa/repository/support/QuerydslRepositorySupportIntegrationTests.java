@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import static org.assertj.core.api.Assertions.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +31,7 @@ import org.springframework.data.jpa.repository.config.InfrastructureConfig;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupportTests.UserRepositoryImpl;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @ContextConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class QuerydslRepositorySupportIntegrationTests {
 
 	@Configuration
@@ -97,12 +98,12 @@ public class QuerydslRepositorySupportIntegrationTests {
 	@PersistenceContext(unitName = "querydsl") EntityManager em;
 
 	@Test
-	public void createsRepoCorrectly() {
+	void createsRepoCorrectly() {
 		assertThat(repository).isNotNull();
 	}
 
 	@Test // DATAJPA-135
-	public void createsReconfiguredRepoAccordingly() {
+	void createsReconfiguredRepoAccordingly() {
 
 		assertThat(reconfiguredRepo).isNotNull();
 		assertThat(reconfiguredRepo.getEntityManager().getEntityManagerFactory()) //
@@ -110,7 +111,7 @@ public class QuerydslRepositorySupportIntegrationTests {
 	}
 
 	@Test // DATAJPA-1205
-	public void createsRepositoryWithCustomImplementationUsingQueryDsl() {
+	void createsRepositoryWithCustomImplementationUsingQueryDsl() {
 
 		assertThat(querydslCustom).isNotNull();
 		assertThat(querydslCustom.getEntityManager().getEntityManagerFactory()) //

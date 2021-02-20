@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import io.vavr.control.Try;
+
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -27,17 +30,24 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.provider.QueryExtractor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.query.JpaQueryExecution.ModifyingExecution;
 import org.springframework.data.jpa.repository.query.JpaQueryExecution.PagedExecution;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
+import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 
 /**
  * Unit test for {@link JpaQueryExecution}.
@@ -48,8 +58,9 @@ import org.springframework.data.jpa.repository.query.JpaQueryExecution.PagedExec
  * @author Nicolas Cirigliano
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class JpaQueryExecutionUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class JpaQueryExecutionUnitTests {
 
 	@Mock EntityManager em;
 	@Mock AbstractStringBasedJpaQuery jpaQuery;
@@ -59,30 +70,52 @@ public class JpaQueryExecutionUnitTests {
 
 	@Mock TypedQuery<Long> countQuery;
 
+	// needs to be public
 	public static void sampleMethod(Pageable pageable) {}
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		when(query.executeUpdate()).thenReturn(0);
 		when(jpaQuery.createQuery(Mockito.any(JpaParametersParameterAccessor.class))).thenReturn(query);
 		when(jpaQuery.getQueryMethod()).thenReturn(method);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsNullQuery() {
+	@Test
+	void rejectsNullQuery() {
 
-		new StubQueryExecution().execute(null, accessor);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void rejectsNullBinder() throws Exception {
-
-		new StubQueryExecution().execute(jpaQuery, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new StubQueryExecution().execute(null, accessor));
 	}
 
 	@Test
-	public void transformsNoResultExceptionToNull() {
+	void rejectsNullBinder() {
+
+		assertThatIllegalArgumentException().isThrownBy(() -> new StubQueryExecution().execute(jpaQuery, null));
+	}
+
+	@Test // DATAJPA-1827
+	void supportsModifyingResultsUsingWrappers() throws Exception {
+
+		Method method = VavrRepository.class.getMethod("updateUsingVavrMethod");
+		DefaultRepositoryMetadata repositoryMetadata = new DefaultRepositoryMetadata(VavrRepository.class);
+		JpaQueryMethod queryMethod = new JpaQueryMethod(method, repositoryMetadata, new SpelAwareProxyProjectionFactory(),
+				mock(QueryExtractor.class));
+
+		new JpaQueryExecution.ModifyingExecution(queryMethod, mock(EntityManager.class));
+
+		assertThat(queryMethod.isModifyingQuery()).isTrue();
+	}
+
+	interface VavrRepository extends Repository<String, String> {
+
+		// Wrapped outcome allowed
+		@org.springframework.data.jpa.repository.Query("update Credential d set d.enabled = false where d.enabled = true")
+		@Modifying
+		Try<Integer> updateUsingVavrMethod();
+	}
+
+	@Test
+	void transformsNoResultExceptionToNull() {
 
 		assertThat(new JpaQueryExecution() {
 
@@ -96,7 +129,7 @@ public class JpaQueryExecutionUnitTests {
 
 	@Test // DATAJPA-806
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void modifyingExecutionFlushesEntityManagerIfSet() {
+	void modifyingExecutionFlushesEntityManagerIfSet() {
 
 		when(method.getReturnType()).thenReturn((Class) void.class);
 		when(method.getFlushAutomatically()).thenReturn(true);
@@ -110,7 +143,7 @@ public class JpaQueryExecutionUnitTests {
 
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void modifyingExecutionClearsEntityManagerIfSet() {
+	void modifyingExecutionClearsEntityManagerIfSet() {
 
 		when(method.getReturnType()).thenReturn((Class) void.class);
 		when(method.getClearAutomatically()).thenReturn(true);
@@ -124,7 +157,7 @@ public class JpaQueryExecutionUnitTests {
 
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void allowsMethodReturnTypesForModifyingQuery() throws Exception {
+	void allowsMethodReturnTypesForModifyingQuery() {
 
 		when(method.getReturnType()).thenReturn((Class) void.class, (Class) int.class, (Class) Integer.class);
 
@@ -134,15 +167,15 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test(expected = IllegalArgumentException.class)
-	public void modifyingExecutionRejectsNonIntegerOrVoidReturnType() throws Exception {
+	@Test
+	void modifyingExecutionRejectsNonIntegerOrVoidReturnType() {
 
 		when(method.getReturnType()).thenReturn((Class) Long.class);
-		new ModifyingExecution(method, em);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ModifyingExecution(method, em));
 	}
 
 	@Test // DATAJPA-124, DATAJPA-912
-	public void pagedExecutionRetrievesObjectsForPageableOutOfRange() throws Exception {
+	void pagedExecutionRetrievesObjectsForPageableOutOfRange() throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
 		when(jpaQuery.createCountQuery(Mockito.any())).thenReturn(countQuery);
@@ -158,7 +191,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-477, DATAJPA-912
-	public void pagedExecutionShouldNotGenerateCountQueryIfQueryReportedNoResults() throws Exception {
+	void pagedExecutionShouldNotGenerateCountQueryIfQueryReportedNoResults() throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
@@ -173,7 +206,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pagedExecutionShouldUseCountFromResultIfOffsetIsZeroAndResultsWithinPageSize() throws Exception {
+	void pagedExecutionShouldUseCountFromResultIfOffsetIsZeroAndResultsWithinPageSize() throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
@@ -187,7 +220,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pagedExecutionShouldUseCountFromResultWithOffsetAndResultsWithinPageSize() throws Exception {
+	void pagedExecutionShouldUseCountFromResultWithOffsetAndResultsWithinPageSize() throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
@@ -201,7 +234,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pagedExecutionShouldUseRequestCountFromResultWithOffsetAndResultsHitLowerPageSizeBounds()
+	void pagedExecutionShouldUseRequestCountFromResultWithOffsetAndResultsHitLowerPageSizeBounds()
 			throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
@@ -218,7 +251,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-912
-	public void pagedExecutionShouldUseRequestCountFromResultWithOffsetAndResultsHitUpperPageSizeBounds()
+	void pagedExecutionShouldUseRequestCountFromResultWithOffsetAndResultsHitUpperPageSizeBounds()
 			throws Exception {
 
 		JpaParameters parameters = new JpaParameters(getClass().getMethod("sampleMethod", Pageable.class));
@@ -235,7 +268,7 @@ public class JpaQueryExecutionUnitTests {
 	}
 
 	@Test // DATAJPA-951
-	public void doesNotPreemtivelyWrapResultIntoOptional() throws Exception {
+	void doesNotPreemtivelyWrapResultIntoOptional() {
 
 		doReturn(method).when(jpaQuery).getQueryMethod();
 		doReturn(Optional.class).when(method).getReturnType();

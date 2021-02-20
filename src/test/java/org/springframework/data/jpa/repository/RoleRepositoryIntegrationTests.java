@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.sample.Role;
 import org.springframework.data.jpa.repository.sample.RoleRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Thomas Darimont
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = { "classpath:application-context.xml" })
 @Transactional
 public class RoleRepositoryIntegrationTests {
@@ -44,7 +45,7 @@ public class RoleRepositoryIntegrationTests {
 	@Autowired RoleRepository repository;
 
 	@Test
-	public void createsRole() throws Exception {
+	void createsRole() throws Exception {
 
 		Role reference = new Role("ADMIN");
 		Role result = repository.save(reference);
@@ -52,7 +53,7 @@ public class RoleRepositoryIntegrationTests {
 	}
 
 	@Test
-	public void updatesRole() throws Exception {
+	void updatesRole() throws Exception {
 
 		Role reference = new Role("ADMIN");
 		Role result = repository.save(reference);
@@ -66,7 +67,7 @@ public class RoleRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-509
-	public void shouldUseExplicitlyConfiguredEntityNameInOrmXmlInCountQueries() {
+	void shouldUseExplicitlyConfiguredEntityNameInOrmXmlInCountQueries() {
 
 		Role reference = new Role("ADMIN");
 		repository.save(reference);
@@ -75,7 +76,7 @@ public class RoleRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-509
-	public void shouldUseExplicitlyConfiguredEntityNameInOrmXmlInExistsQueries() {
+	void shouldUseExplicitlyConfiguredEntityNameInOrmXmlInExistsQueries() {
 
 		Role reference = new Role("ADMIN");
 		reference = repository.save(reference);
@@ -84,7 +85,7 @@ public class RoleRepositoryIntegrationTests {
 	}
 
 	@Test // DATAJPA-509
-	public void shouldUseExplicitlyConfiguredEntityNameInDerivedCountQueries() {
+	void shouldUseExplicitlyConfiguredEntityNameInDerivedCountQueries() {
 
 		Role reference = new Role("ADMIN");
 		reference = repository.save(reference);

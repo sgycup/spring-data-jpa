@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.data.jpa.domain;
-
-import static org.springframework.data.jpa.domain.SpecificationComposition.*;
 
 import java.io.Serializable;
 
@@ -34,6 +32,7 @@ import org.springframework.lang.Nullable;
  * @author Krzysztof Rzymkowski
  * @author Sebastian Staudt
  * @author Mark Paluch
+ * @author Jens Schauder
  */
 public interface Specification<T> extends Serializable {
 
@@ -42,27 +41,26 @@ public interface Specification<T> extends Serializable {
 	/**
 	 * Negates the given {@link Specification}.
 	 *
-	 * @param <T>
+	 * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
 	 * @param spec can be {@literal null}.
-	 * @return
+	 * @return guaranteed to be not {@literal null}.
 	 * @since 2.0
 	 */
 	static <T> Specification<T> not(@Nullable Specification<T> spec) {
 
 		return spec == null //
-				? (root, query, builder) -> null//
+				? (root, query, builder) -> null //
 				: (root, query, builder) -> builder.not(spec.toPredicate(root, query, builder));
 	}
 
 	/**
 	 * Simple static factory method to add some syntactic sugar around a {@link Specification}.
 	 *
-	 * @param <T>
+	 * @param <T> the type of the {@link Root} the resulting {@literal Specification} operates on.
 	 * @param spec can be {@literal null}.
-	 * @return
+	 * @return guaranteed to be not {@literal null}.
 	 * @since 2.0
 	 */
-	@Nullable
 	static <T> Specification<T> where(@Nullable Specification<T> spec) {
 		return spec == null ? (root, query, builder) -> null : spec;
 	}
@@ -74,9 +72,8 @@ public interface Specification<T> extends Serializable {
 	 * @return The conjunction of the specifications
 	 * @since 2.0
 	 */
-	@Nullable
 	default Specification<T> and(@Nullable Specification<T> other) {
-		return composed(this, other, (builder, left, rhs) -> builder.and(left, rhs));
+		return SpecificationComposition.composed(this, other, CriteriaBuilder::and);
 	}
 
 	/**
@@ -86,9 +83,8 @@ public interface Specification<T> extends Serializable {
 	 * @return The disjunction of the specifications
 	 * @since 2.0
 	 */
-	@Nullable
 	default Specification<T> or(@Nullable Specification<T> other) {
-		return composed(this, other, (builder, left, rhs) -> builder.or(left, rhs));
+		return SpecificationComposition.composed(this, other, CriteriaBuilder::or);
 	}
 
 	/**

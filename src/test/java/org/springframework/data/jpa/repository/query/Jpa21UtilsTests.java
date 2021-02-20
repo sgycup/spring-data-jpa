@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.jpa.repository.query;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assume.*;
 import static org.springframework.data.jpa.support.EntityManagerTestUtils.*;
 
@@ -32,14 +33,15 @@ import javax.persistence.Subgraph;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -49,7 +51,7 @@ import org.springframework.util.ObjectUtils;
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:application-context.xml")
 @Transactional
 public class Jpa21UtilsTests {
@@ -57,7 +59,7 @@ public class Jpa21UtilsTests {
 	@Autowired EntityManager em;
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void shouldCreateGraphWithoutSubGraphCorrectly() {
+	void shouldCreateGraphWithoutSubGraphCorrectly() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -73,7 +75,7 @@ public class Jpa21UtilsTests {
 	}
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void shouldCreateGraphWithMultipleSubGraphCorrectly() {
+	void shouldCreateGraphWithMultipleSubGraphCorrectly() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -90,7 +92,7 @@ public class Jpa21UtilsTests {
 	}
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void shouldCreateGraphWithDeepSubGraphCorrectly() {
+	void shouldCreateGraphWithDeepSubGraphCorrectly() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -112,7 +114,7 @@ public class Jpa21UtilsTests {
 	}
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void shouldIgnoreIntermedeateSubGraphNodesThatAreNotNeeded() {
+	void shouldIgnoreIntermedeateSubGraphNodesThatAreNotNeeded() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -134,7 +136,7 @@ public class Jpa21UtilsTests {
 	}
 
 	@Test // DATAJPA-1041, DATAJPA-1075
-	public void orderOfSubGraphsShouldNotMatter() {
+	void orderOfSubGraphsShouldNotMatter() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
@@ -154,13 +156,14 @@ public class Jpa21UtilsTests {
 		assertThat(colleaguesOfColleagues).terminatesGraphWith("roles");
 	}
 
-	@Test(expected = Exception.class) // DATAJPA-1041, DATAJPA-1075
-	public void errorsOnUnknownProperties() {
+	@Test // DATAJPA-1041, DATAJPA-1075
+	void errorsOnUnknownProperties() {
 
 		assumeTrue(currentEntityManagerIsAJpa21EntityManager(em));
 
-		Jpa21Utils.configureFetchGraphFrom(new JpaEntityGraph("name", EntityGraphType.FETCH, new String[] { "¯\\_(ツ)_/¯" }),
-				em.createEntityGraph(User.class));
+		assertThatExceptionOfType(Exception.class).isThrownBy(() -> Jpa21Utils.configureFetchGraphFrom(
+				new JpaEntityGraph("name", EntityGraphType.FETCH, new String[] { "¯\\_(ツ)_/¯" }),
+				em.createEntityGraph(User.class)));
 	}
 
 	/**
@@ -170,7 +173,7 @@ public class Jpa21UtilsTests {
 	 * @param graph
 	 * @return
 	 */
-	public static @Nullable AttributeNode<?> findNode(String nodeName, @Nullable EntityGraph<?> graph) {
+	static @Nullable AttributeNode<?> findNode(String nodeName, @Nullable EntityGraph<?> graph) {
 
 		if (graph == null) {
 			return null;
@@ -187,7 +190,7 @@ public class Jpa21UtilsTests {
 	 * @return
 	 */
 	@Nullable
-	public static AttributeNode<?> findNode(String nodeName, List<AttributeNode<?>> nodes) {
+	static AttributeNode<?> findNode(String nodeName, List<AttributeNode<?>> nodes) {
 
 		if (CollectionUtils.isEmpty(nodes)) {
 			return null;
@@ -211,7 +214,7 @@ public class Jpa21UtilsTests {
 	 * @return
 	 */
 	@Nullable
-	public static AttributeNode<?> findNode(String attributeName, AttributeNode<?> node) {
+	static AttributeNode<?> findNode(String attributeName, AttributeNode<?> node) {
 
 		if (CollectionUtils.isEmpty(node.getSubgraphs())) {
 			return null;

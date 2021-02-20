@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,13 @@ import javax.persistence.LockModeType;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor.CrudMethodMetadataPopulatingMethodInterceptor;
@@ -41,8 +44,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @author Mark Paluch
  * @author Jens Schauder
  */
-@RunWith(MockitoJUnitRunner.class)
-public class CrudMethodMetadataPopulatingMethodInterceptorUnitTests {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class CrudMethodMetadataPopulatingMethodInterceptorUnitTests {
 
 	@Mock MethodInvocation invocation;
 	@Mock RepositoryInformation information;
@@ -67,7 +71,7 @@ public class CrudMethodMetadataPopulatingMethodInterceptorUnitTests {
 
 	@Test // DATAJPA-268
 	@SuppressWarnings("unchecked")
-	public void cleansUpBoundResources() throws Throwable {
+	void cleansUpBoundResources() throws Throwable {
 
 		Method method = prepareMethodInvocation("someMethod");
 		when(information.isQueryMethod(method)).thenReturn(false);
@@ -82,7 +86,7 @@ public class CrudMethodMetadataPopulatingMethodInterceptorUnitTests {
 
 	@Test // DATAJPA-839, DATAJPA-1368
 	@SuppressWarnings("unchecked")
-	public void looksUpCrudMethodMetadataForEveryInvocation() {
+	void looksUpCrudMethodMetadataForEveryInvocation() {
 
 		CrudMethodMetadata metadata = new CrudMethodMetadataPostProcessor().getCrudMethodMetadata();
 		when(information.isQueryMethod(any())).thenReturn(false);

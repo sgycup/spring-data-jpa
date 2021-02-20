@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 the original author or authors.
+ * Copyright 2011-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License
 import org.springframework.aop.framework.Advised;
@@ -33,11 +33,10 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
 import org.hibernate.Version;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +49,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.repository.query.Param;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Assert;
 
 /**
@@ -61,25 +60,23 @@ import org.springframework.util.Assert;
  * @author Michael Cramer
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:infrastructure.xml")
 public class PartTreeJpaQueryIntegrationTests {
 
 	private static String PROPERTY = "h.target." + getQueryProperty();
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
-
 	@PersistenceContext EntityManager entityManager;
 
-	PersistenceProvider provider;
+	private PersistenceProvider provider;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 		this.provider = PersistenceProvider.fromEntityManager(entityManager);
 	}
 
 	@Test // DATADOC-90
-	public void test() throws Exception {
+	void test() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("findByFirstname", String.class, Pageable.class);
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -89,21 +86,21 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test
-	public void cannotIgnoreCaseIfNotString() throws Exception {
+	void cannotIgnoreCaseIfNotString() {
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Unable to ignore case of java.lang.Integer types, the property 'id' must reference a String");
-		testIgnoreCase("findByIdIgnoringCase", 3);
+		assertThatIllegalArgumentException().isThrownBy(() -> testIgnoreCase("findByIdIgnoringCase", 3))
+				.withMessageContaining(
+						"Unable to ignore case of java.lang.Integer types, the property 'id' must reference a String");
 	}
 
 	@Test
-	public void cannotIgnoreCaseIfNotStringUnlessIgnoringAll() throws Exception {
+	void cannotIgnoreCaseIfNotStringUnlessIgnoringAll() throws Exception {
 
 		testIgnoreCase("findByIdAllIgnoringCase", 3);
 	}
 
 	@Test // DATAJPA-121
-	public void recreatesQueryIfNullValueIsGiven() throws Exception {
+	void recreatesQueryIfNullValueIsGiven() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("findByFirstname", String.class, Pageable.class);
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -118,7 +115,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-920
-	public void shouldLimitExistsProjectionQueries() throws Exception {
+	void shouldLimitExistsProjectionQueries() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("existsByFirstname", String.class);
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -129,7 +126,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-920
-	public void shouldSelectAliasedIdForExistsProjectionQueries() throws Exception {
+	void shouldSelectAliasedIdForExistsProjectionQueries() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("existsByFirstname", String.class);
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -140,7 +137,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-1074
-	public void isEmptyCollection() throws Exception {
+	void isEmptyCollection() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("findByRolesIsEmpty");
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -151,7 +148,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-1074
-	public void isNotEmptyCollection() throws Exception {
+	void isNotEmptyCollection() throws Exception {
 
 		JpaQueryMethod queryMethod = getQueryMethod("findByRolesIsNotEmpty");
 		PartTreeJpaQuery jpaQuery = new PartTreeJpaQuery(queryMethod, entityManager);
@@ -161,17 +158,16 @@ public class PartTreeJpaQueryIntegrationTests {
 		assertThat(HibernateUtils.getHibernateQuery(getValue(query, PROPERTY))).endsWith("roles is not empty");
 	}
 
-	@Test(expected = IllegalArgumentException.class) // DATAJPA-1074
-	public void rejectsIsEmptyOnNonCollectionProperty() throws Exception {
+	@Test // DATAJPA-1074
+	void rejectsIsEmptyOnNonCollectionProperty() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findByFirstnameIsEmpty");
-		AbstractJpaQuery jpaQuery = new PartTreeJpaQuery(method, entityManager);
 
-		jpaQuery.createQuery((getAccessor(method, new Object[] { "Oliver" })));
+		assertThatIllegalArgumentException().isThrownBy(() -> new PartTreeJpaQuery(method, entityManager));
 	}
 
 	@Test // DATAJPA-1182
-	public void rejectsInPredicateWithNonIterableParameter() throws Exception {
+	void rejectsInPredicateWithNonIterableParameter() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findByIdIn", Integer.class);
 
@@ -184,7 +180,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-1182
-	public void rejectsOtherThanInPredicateWithIterableParameter() throws Exception {
+	void rejectsOtherThanInPredicateWithIterableParameter() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findById", Collection.class);
 
@@ -197,7 +193,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-1619
-	public void acceptsInPredicateWithIterableParameter() throws Exception {
+	void acceptsInPredicateWithIterableParameter() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findByFirstnameIn", Iterable.class);
 
@@ -207,7 +203,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-863
-	public void errorsDueToMismatchOfParametersContainNameOfMethodInterfaceAndPropertyPath() throws Exception {
+	void errorsDueToMismatchOfParametersContainNameOfMethodInterfaceAndPropertyPath() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findByFirstname");
 
@@ -219,7 +215,7 @@ public class PartTreeJpaQueryIntegrationTests {
 	}
 
 	@Test // DATAJPA-863
-	public void errorsDueToMissingPropertyContainNameOfMethodAndInterface() throws Exception {
+	void errorsDueToMissingPropertyContainNameOfMethodAndInterface() throws Exception {
 
 		JpaQueryMethod method = getQueryMethod("findByNoSuchProperty", String.class);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import java.lang.annotation.Target;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +39,7 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for {@link EntityManagerBeanDefinitionRegistrarPostProcessor}.
@@ -46,14 +47,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class EntityManagerBeanDefinitionRegistrarPostProcessorIntegrationTests {
 
 	@Autowired EntityManagerInjectionTarget target;
 
 	@Test // DATAJPA-445
-	public void injectsEntityManagerIntoConstructors() {
+	void injectsEntityManagerIntoConstructors() {
 
 		assertThat(target).isNotNull();
 		assertThat(target.em).isNotNull();
@@ -67,7 +68,7 @@ public class EntityManagerBeanDefinitionRegistrarPostProcessorIntegrationTests {
 	@Component
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
-	static @interface TestComponent {
+	private static @interface TestComponent {
 
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import javax.persistence.EntityManager;
 
 import org.assertj.core.api.Assumptions;
 import org.hibernate.Version;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.asm.ClassWriter;
 import org.springframework.asm.Opcodes;
@@ -41,12 +41,12 @@ import org.springframework.util.ClassUtils;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-public class PersistenceProviderUnitTests {
+class PersistenceProviderUnitTests {
 
-	ShadowingClassLoader shadowingClassLoader;
+	private ShadowingClassLoader shadowingClassLoader;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 
 		PersistenceProvider.CACHE.clear();
 
@@ -54,7 +54,7 @@ public class PersistenceProviderUnitTests {
 	}
 
 	@Test
-	public void detectsEclipseLinkPersistenceProvider() throws Exception {
+	void detectsEclipseLinkPersistenceProvider() throws Exception {
 
 		shadowingClassLoader.excludePackage("org.eclipse.persistence.jpa");
 
@@ -64,7 +64,7 @@ public class PersistenceProviderUnitTests {
 	}
 
 	@Test
-	public void fallbackToGenericJpaForUnknownPersistenceProvider() throws Exception {
+	void fallbackToGenericJpaForUnknownPersistenceProvider() throws Exception {
 
 		EntityManager em = mockProviderSpecificEntityManagerInterface("foo.bar.unknown.jpa.JpaEntityManager");
 
@@ -72,7 +72,7 @@ public class PersistenceProviderUnitTests {
 	}
 
 	@Test // DATAJPA-1019
-	public void detectsHibernatePersistenceProviderForHibernateVersion52() throws Exception {
+	void detectsHibernatePersistenceProviderForHibernateVersion52() throws Exception {
 
 		Assumptions.assumeThat(Version.getVersionString()).startsWith("5.2");
 
@@ -84,7 +84,7 @@ public class PersistenceProviderUnitTests {
 	}
 
 	@Test // DATAJPA-1379
-	public void detectsProviderFromProxiedEntityManager() throws Exception {
+	void detectsProviderFromProxiedEntityManager() throws Exception {
 
 		shadowingClassLoader.excludePackage("org.eclipse.persistence.jpa");
 
@@ -111,12 +111,12 @@ public class PersistenceProviderUnitTests {
 
 	static class InterfaceGenerator implements Opcodes {
 
-		public static Class<?> generate(final String interfaceName, ClassLoader parentClassLoader,
+		static Class<?> generate(final String interfaceName, ClassLoader parentClassLoader,
 				final Class<?>... interfaces) throws ClassNotFoundException {
 
 			class CustomClassLoader extends ClassLoader {
 
-				public CustomClassLoader(ClassLoader parent) {
+				CustomClassLoader(ClassLoader parent) {
 					super(parent);
 				}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2020 the original author or authors.
+ * Copyright 2008-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.springframework.data.jpa.repository.support;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -48,7 +47,6 @@ import com.querydsl.jpa.impl.AbstractJPAQuery;
  * {@link QuerydslPredicateExecutor}.
  *
  * @deprecated Instead of this class use {@link QuerydslJpaPredicateExecutor}
- *
  * @author Oliver Gierke
  * @author Thomas Darimont
  * @author Mark Paluch
@@ -222,9 +220,7 @@ public class QuerydslJpaRepository<T, ID extends Serializable> extends SimpleJpa
 			query = query.where(predicate);
 		}
 
-		for (Entry<String, Object> hint : hints) {
-			query.setHint(hint.getKey(), hint.getValue());
-		}
+		hints.forEach(query::setHint);
 
 		return query;
 	}
